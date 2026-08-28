@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String     @unique
+  password  String
+  phone     String?
+  image     String?
+  role      UserRole   @default(DONATUR)
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  donations Donation[]
+}
+
+model Campaign {
+  id          Int        @id @default(autoincrement())
+  title       String
+  slug        String     @unique
+  description String
+  image       String
+  target      Int
+  collected   Int        @default(0)
+  category    String
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  featured    Boolean    @default(false)
+  type        String     @default("GENERAL")
+  donations   Donation[]
+}
+
+model Donation {
+  id             Int           @id @default(autoincrement())
+  donorName      String
+  email          String
+  phone          String
+  message        String?
+  amount         Int
+  createdAt      DateTime      @default(now())
+  campaignId     Int
+  orderId        String?       @unique
+  paymentMethod  String?
+  paymentStatus  PaymentStatus @default(PENDING)
+  settlementTime DateTime?
+  snapToken      String?
+  transactionId  String?
+  updatedAt      DateTime?
+  userId         Int?
+  campaign       Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user           User?         @relation(fields: [userId], references: [id])
+}
+
+model Banner {
+  id         Int      @id @default(autoincrement())
+  title      String
+  subtitle   String?
+  image      String
+  link       String?
+  buttonText String?
+  isActive   Boolean  @default(true)
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Report {
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String?
+  year          Int
+  month         Int?
+  category      String
+  amount        Int      @default(0)
+  beneficiaries Int      @default(0)
+  fileUrl       String?
+  isPublished   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([year])
+  @@index([category])
+  @@index([isPublished])
+}
+
+enum CampaignType {
+  GENERAL
+  ZAKAT_PENGHASILAN
+  ZAKAT_MAL
+  ZAKAT_PERTANIAN
+  ZAKAT_PETERNAKAN
+  ZAKAT_PERDAGANGAN
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  DONATUR
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  EXPIRED
+}
