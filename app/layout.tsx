@@ -1,10 +1,24 @@
 import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
 import "./globals.css";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  variable: "--font-poppins",
+  display: "swap",
+  weight: [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+  ],
+});
 
 export const metadata: Metadata = {
   title: "BAZNAS NTB",
-  description:
-    "Platform Zakat dan Donasi Resmi BAZNAS NTB",
+  description: "Platform Zakat dan Donasi Resmi BAZNAS NTB",
 };
 
 export default function RootLayout({
@@ -14,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id">
-      <body className="font-sans antialiased">
+      <body className={`${poppins.variable} font-sans`}>
         {children}
       </body>
     </html>

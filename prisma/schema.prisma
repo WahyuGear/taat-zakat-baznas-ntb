@@ -22,20 +22,21 @@ model User {
 }
 
 model Campaign {
-  id          Int        @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
   title       String
-  slug        String     @unique
+  slug        String           @unique
   description String
   image       String
   target      Int
-  collected   Int        @default(0)
+  collected   Int              @default(0)
   category    String
-  isActive    Boolean    @default(true)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  featured    Boolean    @default(false)
-  type        String     @default("GENERAL")
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  featured    Boolean          @default(false)
+  type        String           @default("GENERAL")
   donations   Donation[]
+  reports     CampaignReport[]
 }
 
 model Donation {
@@ -98,6 +99,37 @@ enum CampaignType {
   ZAKAT_PERTANIAN
   ZAKAT_PETERNAKAN
   ZAKAT_PERDAGANGAN
+}
+
+model CampaignReport {
+  id          Int      @id @default(autoincrement())
+  campaignId  Int
+  title       String
+  description String?
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  campaign Campaign             @relation(fields: [campaignId], references: [id], onDelete: Restrict)
+  items    CampaignReportItem[]
+
+  @@index([campaignId])
+  @@index([isPublished])
+}
+
+model CampaignReportItem {
+  id        Int      @id @default(autoincrement())
+  reportId  Int
+  image     String
+  title     String?
+  content   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  report CampaignReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
 }
 
 enum UserRole {
