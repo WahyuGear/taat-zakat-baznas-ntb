@@ -92,15 +92,6 @@ model Report {
   @@index([isPublished])
 }
 
-enum CampaignType {
-  GENERAL
-  ZAKAT_PENGHASILAN
-  ZAKAT_MAL
-  ZAKAT_PERTANIAN
-  ZAKAT_PETERNAKAN
-  ZAKAT_PERDAGANGAN
-}
-
 model CampaignReport {
   id          Int      @id @default(autoincrement())
   campaignId  Int
@@ -130,6 +121,15 @@ model CampaignReportItem {
   report CampaignReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
   @@index([reportId])
+}
+
+enum CampaignType {
+  GENERAL
+  ZAKAT_PENGHASILAN
+  ZAKAT_MAL
+  ZAKAT_PERTANIAN
+  ZAKAT_PETERNAKAN
+  ZAKAT_PERDAGANGAN
 }
 
 enum UserRole {
