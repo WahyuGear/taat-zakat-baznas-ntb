@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -28,7 +29,33 @@ export default async function UserDashboardPage() {
     redirect("/login");
   }
 
-  const user = verifyToken(token);
+  const jwtUser = verifyToken(token);
+
+  if (!jwtUser) {
+    redirect("/login");
+  }
+
+  // =========================
+  // AMBIL USER TERBARU DARI DATABASE
+  // =========================
+  // Penting:
+  // JWT tidak menyimpan image.
+  // Jadi foto profil harus diambil langsung
+  // dari database.
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: jwtUser.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      image: true,
+      role: true,
+    },
+  });
 
   if (!user) {
     redirect("/login");
@@ -52,17 +79,14 @@ export default async function UserDashboardPage() {
   });
 
   const totalDonation = donations.reduce(
-    (total, donation) =>
-      total + donation.amount,
+    (total, donation) => total + donation.amount,
     0
   );
 
   const donationCount = donations.length;
 
   const campaignCount = new Set(
-    donations.map(
-      (donation) => donation.campaignId
-    )
+    donations.map((donation) => donation.campaignId)
   ).size;
 
   // =========================
@@ -75,7 +99,6 @@ export default async function UserDashboardPage() {
 
   return (
     <main className="min-h-screen bg-[#F5F7FB] px-4 pb-28 pt-5">
-
       <div className="mx-auto w-full max-w-[430px]">
 
         {/* =========================
@@ -83,20 +106,35 @@ export default async function UserDashboardPage() {
         ========================= */}
 
         <section className="rounded-[28px] bg-green-700 p-5 text-white shadow-sm">
-
           <div className="flex items-center justify-between">
 
             <div className="flex items-center gap-3">
 
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
-                <User
-                  size={23}
-                  strokeWidth={2}
-                />
+              {/* FOTO PROFIL */}
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl bg-white/15 ring-2 ring-white/20">
+
+                {user.image ? (
+                  <Image
+                    src={user.image}
+                    alt={user.name || "Foto profil"}
+                    fill
+                    className="object-cover"
+                    sizes="48px"
+                    priority
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <User
+                      size={23}
+                      strokeWidth={2}
+                    />
+                  </div>
+                )}
+
               </div>
 
+              {/* NAMA USER */}
               <div>
-
                 <p className="text-[9px] font-medium text-green-100">
                   Selamat datang 👋
                 </p>
@@ -104,17 +142,14 @@ export default async function UserDashboardPage() {
                 <h1 className="mt-0.5 text-base font-bold">
                   {user.name}
                 </h1>
-
               </div>
 
             </div>
 
             <div className="rounded-xl bg-white/10 px-2.5 py-1.5">
-
               <span className="text-[9px] font-bold">
                 Muzaki
               </span>
-
             </div>
 
           </div>
@@ -123,7 +158,6 @@ export default async function UserDashboardPage() {
             Kelola aktivitas donasi, zakat,
             dan akun Anda bersama BAZNAS NTB.
           </p>
-
         </section>
 
         {/* =========================
@@ -137,12 +171,10 @@ export default async function UserDashboardPage() {
           <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
 
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-50">
-
               <Wallet
                 size={17}
                 className="text-green-700"
               />
-
             </div>
 
             <p className="mt-4 text-[9px] font-medium text-slate-400">
@@ -160,12 +192,10 @@ export default async function UserDashboardPage() {
           <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
 
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-50">
-
               <Heart
                 size={17}
                 className="text-green-700"
               />
-
             </div>
 
             <p className="mt-4 text-[9px] font-medium text-slate-400">
@@ -189,7 +219,6 @@ export default async function UserDashboardPage() {
           <div className="flex items-center justify-between">
 
             <div>
-
               <p className="text-[9px] font-medium text-slate-400">
                 Campaign Didukung
               </p>
@@ -197,16 +226,13 @@ export default async function UserDashboardPage() {
               <p className="mt-1 text-base font-bold text-slate-900">
                 {campaignCount} Campaign
               </p>
-
             </div>
 
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-50">
-
               <Heart
                 size={17}
                 className="text-green-700"
               />
-
             </div>
 
           </div>
@@ -220,7 +246,6 @@ export default async function UserDashboardPage() {
         <section className="mt-4 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm">
 
           <div className="mb-3">
-
             <h2 className="text-sm font-bold text-slate-900">
               Aktivitas Saya
             </h2>
@@ -228,7 +253,6 @@ export default async function UserDashboardPage() {
             <p className="mt-0.5 text-[9px] text-slate-400">
               Akses aktivitas akun Anda
             </p>
-
           </div>
 
           <div className="grid grid-cols-2 gap-2.5">
@@ -237,18 +261,14 @@ export default async function UserDashboardPage() {
               href="/dashboard/donasi"
               className="group flex items-center gap-2.5 rounded-2xl bg-green-50 p-3 transition active:scale-[0.98]"
             >
-
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white">
-
                 <Heart
                   size={16}
                   className="text-green-700"
                 />
-
               </div>
 
               <div className="min-w-0">
-
                 <p className="text-[10px] font-bold text-slate-800">
                   Donasi Saya
                 </p>
@@ -256,27 +276,21 @@ export default async function UserDashboardPage() {
                 <p className="mt-0.5 text-[8px] text-slate-400">
                   Riwayat donasi
                 </p>
-
               </div>
-
             </Link>
 
             <Link
               href="/dashboard/zakat"
               className="group flex items-center gap-2.5 rounded-2xl bg-green-50 p-3 transition active:scale-[0.98]"
             >
-
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white">
-
                 <Calculator
                   size={16}
                   className="text-green-700"
                 />
-
               </div>
 
               <div className="min-w-0">
-
                 <p className="text-[10px] font-bold text-slate-800">
                   Zakat Saya
                 </p>
@@ -284,13 +298,10 @@ export default async function UserDashboardPage() {
                 <p className="mt-0.5 text-[8px] text-slate-400">
                   Riwayat zakat
                 </p>
-
               </div>
-
             </Link>
 
           </div>
-
         </section>
 
         {/* =========================
@@ -311,18 +322,14 @@ export default async function UserDashboardPage() {
               href="/dashboard/profile"
               className="flex items-center gap-3 px-4 py-3.5 transition active:bg-slate-50"
             >
-
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50">
-
                 <User
                   size={16}
                   className="text-slate-600"
                 />
-
               </div>
 
               <div className="min-w-0 flex-1">
-
                 <p className="text-[10px] font-bold text-slate-800">
                   Profil Saya
                 </p>
@@ -330,14 +337,12 @@ export default async function UserDashboardPage() {
                 <p className="mt-0.5 text-[8px] text-slate-400">
                   Kelola informasi pribadi
                 </p>
-
               </div>
 
               <ChevronRight
                 size={15}
                 className="text-slate-300"
               />
-
             </Link>
 
             <div className="ml-16 border-t border-slate-100" />
@@ -348,18 +353,14 @@ export default async function UserDashboardPage() {
               href="/dashboard/donasi"
               className="flex items-center gap-3 px-4 py-3.5 transition active:bg-slate-50"
             >
-
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50">
-
                 <FileText
                   size={16}
                   className="text-slate-600"
                 />
-
               </div>
 
               <div className="min-w-0 flex-1">
-
                 <p className="text-[10px] font-bold text-slate-800">
                   Riwayat Donasi
                 </p>
@@ -367,14 +368,12 @@ export default async function UserDashboardPage() {
                 <p className="mt-0.5 text-[8px] text-slate-400">
                   Lihat transaksi donasi
                 </p>
-
               </div>
 
               <ChevronRight
                 size={15}
                 className="text-slate-300"
               />
-
             </Link>
 
             <div className="ml-16 border-t border-slate-100" />
@@ -385,18 +384,14 @@ export default async function UserDashboardPage() {
               href="/dashboard/settings"
               className="flex items-center gap-3 px-4 py-3.5 transition active:bg-slate-50"
             >
-
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50">
-
                 <Settings
                   size={16}
                   className="text-slate-600"
                 />
-
               </div>
 
               <div className="min-w-0 flex-1">
-
                 <p className="text-[10px] font-bold text-slate-800">
                   Pengaturan Akun
                 </p>
@@ -404,18 +399,15 @@ export default async function UserDashboardPage() {
                 <p className="mt-0.5 text-[8px] text-slate-400">
                   Pengaturan akun dan keamanan
                 </p>
-
               </div>
 
               <ChevronRight
                 size={15}
                 className="text-slate-300"
               />
-
             </Link>
 
           </div>
-
         </section>
 
         {/* =========================
@@ -427,16 +419,13 @@ export default async function UserDashboardPage() {
           <div className="flex gap-3">
 
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white">
-
               <ShieldCheck
                 size={16}
                 className="text-green-700"
               />
-
             </div>
 
             <div>
-
               <p className="text-[10px] font-bold text-green-800">
                 Akun Aman
               </p>
@@ -445,7 +434,6 @@ export default async function UserDashboardPage() {
                 Jaga kerahasiaan password dan
                 informasi akun Anda.
               </p>
-
             </div>
 
           </div>
@@ -456,7 +444,7 @@ export default async function UserDashboardPage() {
             LOGOUT
         ========================= */}
 
-<LogoutButton />
+        <LogoutButton />
 
         {/* =========================
             FOOTER
@@ -467,7 +455,6 @@ export default async function UserDashboardPage() {
         </p>
 
       </div>
-
     </main>
   );
 }

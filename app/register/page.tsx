@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import BottomNav from "@/components/app/bottom-nav";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -17,9 +18,7 @@ export default function RegisterPage() {
 
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(
-    e: React.FormEvent
-  ) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!form.name.trim()) {
@@ -38,16 +37,11 @@ export default function RegisterPage() {
     }
 
     if (form.password.length < 6) {
-      alert(
-        "Password minimal 6 karakter"
-      );
+      alert("Password minimal 6 karakter");
       return;
     }
 
-    if (
-      form.password !==
-      form.confirmPassword
-    ) {
+    if (form.password !== form.confirmPassword) {
       alert("Konfirmasi password tidak sama");
       return;
     }
@@ -55,57 +49,43 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "/api/auth/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: form.name,
-            email: form.email,
-            phone: form.phone,
-            password: form.password,
-          }),
-        }
-      );
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          password: form.password,
+        }),
+      });
 
       const data = await response.json();
 
       if (!response.ok) {
-        alert(
-          data.message ||
-            "Registrasi gagal"
-        );
+        alert(data.message || "Registrasi gagal");
         return;
       }
 
-      alert(
-        "Registrasi berhasil. Silakan login."
-      );
+      alert("Registrasi berhasil. Silakan login.");
 
       router.push("/login");
     } catch (error) {
       console.error(error);
-
-      alert(
-        "Terjadi kesalahan server"
-      );
+      alert("Terjadi kesalahan server");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-screen bg-[#f6f8f7] px-4 py-10">
-
-      <div className="mx-auto max-w-md">
-
-        <div className="rounded-3xl bg-white p-7 shadow-sm">
-
+    <main className="min-h-screen bg-[#f6f8f7] px-4 py-8 pb-28">
+      <div className="mx-auto w-full max-w-md">
+        <div className="rounded-3xl bg-white p-6 shadow-sm sm:p-7">
+          {/* HEADER */}
           <div className="text-center">
-
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100 text-2xl">
               💚
             </div>
@@ -117,14 +97,10 @@ export default function RegisterPage() {
             <p className="mt-2 text-sm text-slate-500">
               Daftar sebagai donatur BAZNAS NTB
             </p>
-
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="mt-7 space-y-4"
-          >
-
+          {/* FORM */}
+          <form onSubmit={handleSubmit} className="mt-7 space-y-4">
             <input
               type="text"
               placeholder="Nama Lengkap"
@@ -135,7 +111,7 @@ export default function RegisterPage() {
                   name: e.target.value,
                 })
               }
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none focus:border-green-500 focus:bg-white"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none transition focus:border-green-500 focus:bg-white"
             />
 
             <input
@@ -148,7 +124,7 @@ export default function RegisterPage() {
                   email: e.target.value,
                 })
               }
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none focus:border-green-500 focus:bg-white"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none transition focus:border-green-500 focus:bg-white"
             />
 
             <input
@@ -161,7 +137,7 @@ export default function RegisterPage() {
                   phone: e.target.value,
                 })
               }
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none focus:border-green-500 focus:bg-white"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none transition focus:border-green-500 focus:bg-white"
             />
 
             <input
@@ -174,7 +150,7 @@ export default function RegisterPage() {
                   password: e.target.value,
                 })
               }
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none focus:border-green-500 focus:bg-white"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none transition focus:border-green-500 focus:bg-white"
             />
 
             <input
@@ -184,42 +160,36 @@ export default function RegisterPage() {
               onChange={(e) =>
                 setForm({
                   ...form,
-                  confirmPassword:
-                    e.target.value,
+                  confirmPassword: e.target.value,
                 })
               }
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none focus:border-green-500 focus:bg-white"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none transition focus:border-green-500 focus:bg-white"
             />
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-2xl bg-green-700 py-3.5 text-sm font-extrabold text-white hover:bg-green-800 disabled:opacity-60"
+              className="w-full rounded-2xl bg-green-700 py-3.5 text-sm font-extrabold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading
-                ? "Mendaftarkan..."
-                : "Daftar Sekarang"}
+              {loading ? "Mendaftarkan..." : "Daftar Sekarang"}
             </button>
-
           </form>
 
+          {/* LOGIN */}
           <p className="mt-6 text-center text-sm text-slate-500">
-
             Sudah punya akun?
-
             <Link
               href="/login"
-              className="ml-1 font-bold text-green-700"
+              className="ml-1 font-bold text-green-700 hover:text-green-800"
             >
               Masuk
             </Link>
-
           </p>
-
         </div>
-
       </div>
 
+      {/* BOTTOM NAV */}
+      <BottomNav />
     </main>
   );
 }

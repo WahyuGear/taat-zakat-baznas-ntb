@@ -1,159 +1,107 @@
-import { getCurrentUser } from "@/lib/auth";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { verifyToken } from "@/lib/auth/jwt";
 
 export default async function DonasiSayaPage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
 
-  const user = await getCurrentUser();
-
-
-  if (!user) {
-    return (
-      <div className="p-10">
-        Silahkan login terlebih dahulu
-      </div>
-    );
+  // Belum login
+  if (!token) {
+    redirect("/login");
   }
 
+  // Verifikasi token
+  const user = verifyToken(token);
 
+  if (!user) {
+    redirect("/login");
+  }
 
+  // Ambil donasi milik user yang sedang login
   const donations = await prisma.donation.findMany({
-
     where: {
       userId: user.id,
     },
-
     include: {
       campaign: true,
     },
-
     orderBy: {
       createdAt: "desc",
     },
-
   });
 
-
-
   return (
+    <main className="min-h-screen bg-[#F5F7FB] px-4 pb-28 pt-5">
+      <div className="mx-auto w-full max-w-[430px]">
 
-    <div className="min-h-screen bg-gray-100 p-6">
-
-
-      <div className="max-w-5xl mx-auto">
-
-
-        <div className="bg-white rounded-2xl shadow p-6">
-
-          <h1 className="text-3xl font-bold text-gray-800">
+        {/* HEADER */}
+        <section className="rounded-[28px] bg-green-700 p-5 text-white shadow-sm">
+          <h1 className="text-xl font-bold">
             Donasi Saya
           </h1>
 
-          <p className="text-gray-500 mt-2">
+          <p className="mt-1 text-xs text-green-100">
             Riwayat donasi Anda di BAZNAS NTB
           </p>
+        </section>
 
-
-        </div>
-
-
-
-        <div className="mt-6 space-y-4">
-
+        {/* LIST DONASI */}
+        <section className="mt-4 space-y-3">
 
           {donations.length === 0 ? (
+            <div className="rounded-2xl border border-slate-100 bg-white p-6 text-center shadow-sm">
+              <p className="text-sm font-semibold text-slate-700">
+                Belum ada donasi
+              </p>
 
-            <div className="bg-white rounded-2xl shadow p-6">
-
-              Belum ada donasi
-
+              <p className="mt-1 text-xs text-slate-400">
+                Donasi yang Anda lakukan akan muncul di sini.
+              </p>
             </div>
-
-
           ) : (
-
-
-            donations.map((item)=>(
-
+            donations.map((item) => (
               <div
                 key={item.id}
-                className="
-                bg-white
-                rounded-2xl
-                shadow
-                p-6
-                "
+                className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm"
               >
+                <div className="flex items-start justify-between gap-3">
 
-
-                <div className="flex justify-between">
-
-
-                  <div>
-
-                    <h2 className="text-xl font-bold">
+                  {/* CAMPAIGN */}
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-sm font-bold text-slate-800">
                       {item.campaign.title}
                     </h2>
 
-
-                    <p className="text-gray-500 mt-2">
-                      {item.createdAt.toLocaleDateString("id-ID")}
+                    <p className="mt-1 text-[10px] text-slate-400">
+                      {item.createdAt.toLocaleDateString("id-ID", {
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric",
+                      })}
                     </p>
-
-
                   </div>
 
-
-
-                  <div className="text-right">
-
-
-                    <p className="text-xl font-bold text-green-600">
-
+                  {/* NOMINAL */}
+                  <div className="shrink-0 text-right">
+                    <p className="text-sm font-bold text-green-700">
                       Rp {item.amount.toLocaleString("id-ID")}
-
                     </p>
 
-
-                    <span
-                      className="
-                      inline-block
-                      mt-2
-                      px-3
-                      py-1
-                      rounded-full
-                      bg-yellow-100
-                      text-yellow-700
-                      text-sm
-                      "
-                    >
-
+                    <span className="mt-1 inline-block rounded-full bg-yellow-100 px-2.5 py-1 text-[9px] font-bold text-yellow-700">
                       {item.paymentStatus}
-
                     </span>
-
-
                   </div>
-
 
                 </div>
-
-
               </div>
-
-
             ))
-
           )}
 
-
-        </div>
-
+        </section>
 
       </div>
-
-
-    </div>
-
+    </main>
   );
-
 }
