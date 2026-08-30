@@ -104,112 +104,113 @@ export default function ZaviraChat() {
 
   return (
     <>
-      {/* FLOATING BUTTON */}
-      {!open && (
-        <div
-          className="fixed z-[9999]"
-          style={{
-            right:
-              "max(16px, calc((100vw - 430px) / 2 + 16px))",
-            bottom: "105px",
-          }}
-        >
-          {/* GLOW / PULSE */}
-          <span
-            className="
-              absolute
-              -inset-2
-              rounded-full
-              bg-green-500/30
-              blur-md
-              animate-pulse
-            "
-          />
 
-          {/* OUTER RING */}
-          <span
-            className="
-              absolute
-              -inset-1
-              rounded-full
-              border-2
-              border-green-400/40
-              animate-ping
-            "
-          />
+{/* FLOATING BUTTON */}
+{!open && (
+  <div
+    className="fixed z-[9999]"
+    style={{
+      right:
+        "max(16px, calc((100vw - 430px) / 2 + 16px))",
+      bottom: "90px",
+    }}
+  >
+    {/* GLOW / PULSE */}
+    <span
+      className="
+        absolute
+        -inset-1
+        rounded-full
+        bg-green-500/25
+        blur-sm
+        animate-pulse
+      "
+    />
 
-          {/* BUTTON */}
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-label="Tanya ZAVIRA AI"
-            className="
-              relative
-              flex
-              items-center
-              gap-2
-              rounded-full
-              border
-              border-green-100
-              bg-white
-              py-2
-              pl-2
-              pr-3
-              shadow-[0_6px_24px_rgba(0,0,0,0.20)]
-              transition-all
-              duration-200
-              hover:scale-105
-              hover:shadow-[0_8px_30px_rgba(22,163,74,0.40)]
-              active:scale-95
-            "
-          >
-            {/* ZAVIRA ICON */}
-            <span
-              className="
-                flex
-                h-10
-                w-10
-                shrink-0
-                items-center
-                justify-center
-                rounded-full
-                bg-green-700
-                text-base
-                font-extrabold
-                text-white
-                shadow-md
-              "
-            >
-              Z
-            </span>
+    {/* OUTER RING */}
+    <span
+      className="
+        absolute
+        -inset-0.5
+        rounded-full
+        border
+        border-green-400/30
+        animate-ping
+      "
+    />
 
-            {/* LABEL */}
-            <span className="flex flex-col items-start leading-none">
-              <span className="text-[9px] font-medium text-slate-500">
-                Tanya
-              </span>
+    {/* BUTTON */}
+    <button
+      type="button"
+      onClick={() => setOpen(true)}
+      aria-label="Tanya ZAVIRA AI"
+      className="
+        relative
+        flex
+        items-center
+        gap-1.5
+        rounded-full
+        border
+        border-green-100
+        bg-white
+        py-1.5
+        pl-1.5
+        pr-2
+        shadow-[0_4px_16px_rgba(0,0,0,0.18)]
+        transition-all
+        duration-200
+        hover:scale-105
+        hover:shadow-[0_6px_22px_rgba(22,163,74,0.35)]
+        active:scale-95
+      "
+    >
+      {/* ZAVIRA ICON */}
+      <span
+        className="
+          flex
+          h-8
+          w-8
+          shrink-0
+          items-center
+          justify-center
+          rounded-full
+          bg-green-700
+          text-xs
+          font-extrabold
+          text-white
+          shadow-sm
+        "
+      >
+        Z
+      </span>
 
-              <span className="mt-0.5 text-xs font-extrabold text-green-700">
-                ZAVIRA AI
-              </span>
-            </span>
+      {/* LABEL */}
+      <span className="flex flex-col items-start leading-none">
+        <span className="text-[8px] font-medium text-slate-500">
+          Tanya
+        </span>
 
-            {/* AI DOT */}
-            <span
-              className="
-                absolute
-                right-1
-                top-1
-                h-2
-                w-2
-                rounded-full
-                bg-emerald-400
-                shadow-[0_0_8px_rgba(52,211,153,0.9)]
-              "
-            />
-          </button>
-        </div>
-      )}
+        <span className="mt-0.5 text-[10px] font-extrabold text-green-700">
+          ZAVIRA AI
+        </span>
+      </span>
+
+      {/* AI DOT */}
+      <span
+        className="
+          absolute
+          right-0.5
+          top-0.5
+          h-1.5
+          w-1.5
+          rounded-full
+          bg-emerald-400
+          shadow-[0_0_6px_rgba(52,211,153,0.9)]
+        "
+      />
+    </button>
+  </div>
+)}
 
       {/* CHAT POPUP */}
       {open && (
@@ -220,7 +221,7 @@ export default function ZaviraChat() {
             left-1/2
             z-[9999]
             flex
-            h-[calc(100vh-24px)]
+            h-[72vh]
             w-[calc(100vw-24px)]
             max-w-[390px]
             -translate-x-1/2
@@ -333,9 +334,7 @@ export default function ZaviraChat() {
                   <div className="rounded-2xl rounded-bl-md bg-white px-4 py-3 shadow-sm">
                     <div className="flex gap-1.5">
                       <span className="h-2 w-2 animate-bounce rounded-full bg-green-600" />
-
                       <span className="h-2 w-2 animate-bounce rounded-full bg-green-600 [animation-delay:150ms]" />
-
                       <span className="h-2 w-2 animate-bounce rounded-full bg-green-600 [animation-delay:300ms]" />
                     </div>
                   </div>

@@ -103,9 +103,41 @@ html {
 
 body {
   margin: 0;
-  background: var(--background);
+  background: #ffffff;
   color: var(--foreground);
   font-family: var(--font-poppins), sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* =================================
+   BACKGROUND DESKTOP
+   ================================= */
+
+@media (min-width: 768px) {
+  html,
+  body {
+    min-height: 100%;
+  }
+
+  body {
+    background:
+      radial-gradient(
+        circle at 10% 10%,
+        rgba(22, 163, 74, 0.08),
+        transparent 28%
+      ),
+      radial-gradient(
+        circle at 90% 20%,
+        rgba(250, 204, 21, 0.08),
+        transparent 25%
+      ),
+      linear-gradient(
+        180deg,
+        #f0fdf4 0%,
+        #ffffff 40%,
+        #f8fafc 100%
+      );
+    background-attachment: fixed;
+  }
 }
