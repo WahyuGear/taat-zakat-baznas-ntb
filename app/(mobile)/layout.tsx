@@ -1,5 +1,6 @@
 import TopBar from "@/components/app/top-bar";
 import BottomNav from "@/components/app/bottom-nav";
+import ZaviraChat from "@/components/zavira/zavira-chat";
 
 export default function MobileLayout({
   children,
@@ -15,6 +16,8 @@ export default function MobileLayout({
         <div className="pb-24">
           {children}
         </div>
+
+        <ZaviraChat />
 
         <BottomNav />
 

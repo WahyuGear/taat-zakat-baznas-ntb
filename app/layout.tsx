@@ -18,7 +18,7 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: "BAZNAS NTB",
-  description: "Platform Zakat dan Donasi Resmi BAZNAS NTB",
+  description: "Platform Zakat, Infak & Sedekah Resmi BAZNAS NTB",
 };
 
 export default function RootLayout({
