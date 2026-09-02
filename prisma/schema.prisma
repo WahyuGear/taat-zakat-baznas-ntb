@@ -14,11 +14,17 @@ model User {
   password  String
   phone     String?
   image     String?
+  npwz      String?    @unique
   role      UserRole   @default(DONATUR)
   isActive  Boolean    @default(true)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   donations Donation[]
+}
+
+model NpwzCounter {
+  id         Int @id
+  nextNumber Int
 }
 
 model Campaign {
@@ -35,8 +41,8 @@ model Campaign {
   updatedAt   DateTime         @updatedAt
   featured    Boolean          @default(false)
   type        String           @default("GENERAL")
-  donations   Donation[]
   reports     CampaignReport[]
+  donations   Donation[]
 }
 
 model Donation {
@@ -93,32 +99,30 @@ model Report {
 }
 
 model CampaignReport {
-  id          Int      @id @default(autoincrement())
+  id          Int                  @id @default(autoincrement())
   campaignId  Int
   title       String
   description String?
-  isPublished Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  campaign Campaign             @relation(fields: [campaignId], references: [id], onDelete: Restrict)
-  items    CampaignReportItem[]
+  isPublished Boolean              @default(true)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  campaign    Campaign             @relation(fields: [campaignId], references: [id])
+  items       CampaignReportItem[]
 
   @@index([campaignId])
   @@index([isPublished])
 }
 
 model CampaignReportItem {
-  id        Int      @id @default(autoincrement())
+  id        Int            @id @default(autoincrement())
   reportId  Int
   image     String
   title     String?
   content   String?
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  report CampaignReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  order     Int            @default(0)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  report    CampaignReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
   @@index([reportId])
 }
@@ -133,9 +137,9 @@ enum CampaignType {
 }
 
 enum UserRole {
-  SUPER_ADMIN
   ADMIN
   DONATUR
+  SUPER_ADMIN
 }
 
 enum PaymentStatus {

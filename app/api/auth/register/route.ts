@@ -1,16 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { prisma } from "@/lib/prisma";
+
 import { hashPassword } from "@/lib/auth/password";
+
+import { generateNpwz } from "@/lib/npwz";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
     const name = String(body.name ?? "").trim();
+
     const email = String(body.email ?? "")
       .trim()
       .toLowerCase();
+
     const password = String(body.password ?? "");
+
     const phone = String(body.phone ?? "").trim();
 
     // =========================
@@ -47,8 +54,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const emailRegex =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
       return NextResponse.json(
@@ -64,12 +70,11 @@ export async function POST(req: NextRequest) {
     // CEK EMAIL
     // =========================
 
-    const existingUser =
-      await prisma.user.findUnique({
-        where: {
-          email,
-        },
-      });
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
 
     if (existingUser) {
       return NextResponse.json(
@@ -85,8 +90,13 @@ export async function POST(req: NextRequest) {
     // HASH PASSWORD
     // =========================
 
-    const hashedPassword =
-      await hashPassword(password);
+    const hashedPassword = await hashPassword(password);
+
+    // =========================
+    // GENERATE NPWZ
+    // =========================
+
+    const npwz = await generateNpwz();
 
     // =========================
     // CREATE USER
@@ -98,6 +108,7 @@ export async function POST(req: NextRequest) {
         email,
         password: hashedPassword,
         phone: phone || null,
+        npwz,
       },
     });
 
@@ -110,15 +121,13 @@ export async function POST(req: NextRequest) {
           name: user.name,
           email: user.email,
           role: user.role,
+          npwz: user.npwz,
         },
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error(
-      "REGISTER ERROR:",
-      error
-    );
+    console.error("REGISTER ERROR:", error);
 
     return NextResponse.json(
       {

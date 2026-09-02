@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth/jwt";
 import LogoutButton from "./logout-button";
+import { Monomaniac_One } from "next/font/google";
 
 import {
   Heart,
@@ -16,6 +17,11 @@ import {
   Calculator,
   ShieldCheck,
 } from "lucide-react";
+
+const monomaniac = Monomaniac_One({
+  subsets: ["latin"],
+  weight: "400",
+});
 
 export default async function UserDashboardPage() {
   // =========================
@@ -54,6 +60,7 @@ export default async function UserDashboardPage() {
       phone: true,
       image: true,
       role: true,
+      npwz: true,
     },
   });
 
@@ -142,6 +149,7 @@ export default async function UserDashboardPage() {
                 <h1 className="mt-0.5 text-base font-bold">
                   {user.name}
                 </h1>
+                
               </div>
 
             </div>
@@ -159,6 +167,55 @@ export default async function UserDashboardPage() {
             dan akun Anda bersama BAZNAS NTB.
           </p>
         </section>
+
+{/* =========================
+    CARD NPWZ
+========================= */}
+<section className="mt-4">
+  <div className="relative w-full overflow-hidden rounded-3xl">
+    <Image
+      src="/images/npwz-card.png"
+      alt="Kartu NPWZ BAZNAS NTB"
+      width={860}
+      height={540}
+      className="h-auto w-full"
+      priority
+    />
+
+    <div
+      className={`absolute left-[8%] top-[50%] text-black ${monomaniac.className}`}
+    >
+      <p
+        className="font-bold text-[12px] leading-none"
+        style={{
+          textShadow: "1px 1px 1px rgba(255,255,255,0.7)",
+        }}
+      >
+        NPWZ :
+      </p>
+
+      <p
+        className="mt-1 font-bold text-[20px] leading-none tracking-wide"
+        style={{
+          textShadow: "1px 1px 1px rgba(255,255,255,0.7)",
+        }}
+      >
+        {user.npwz
+          ? `${user.npwz.slice(0, 7)} ${user.npwz.slice(7, 8)} ${user.npwz.slice(8)}`
+          : "Belum tersedia"}
+      </p>
+
+      <p
+        className="mt-2 font-bold text-[16px] leading-none"
+        style={{
+          textShadow: "1px 1px 1px rgba(255,255,255,0.7)",
+        }}
+      >
+        {user.name || "Nama Muzaki"}
+      </p>
+    </div>
+  </div>
+</section>
 
         {/* =========================
             STATISTIK

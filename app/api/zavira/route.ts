@@ -13,6 +13,15 @@ const NISAB_PENGHASILAN_2026 = 7_640_144;
 const NISAB_PENGHASILAN_TAHUNAN_2026 = 91_681_728;
 const KADAR_PENGHASILAN = 0.025;
 
+type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+/* =========================================================
+   NORMALIZE
+========================================================= */
+
 function normalize(text: string): string {
   return text
     .toLowerCase()
@@ -22,6 +31,10 @@ function normalize(text: string): string {
     .trim();
 }
 
+/* =========================================================
+   GREETING
+========================================================= */
+
 function isGreeting(question: string): boolean {
   const q = normalize(question);
 
@@ -29,6 +42,10 @@ function isGreeting(question: string): boolean {
     q
   );
 }
+
+/* =========================================================
+   CASUAL
+========================================================= */
 
 function isCasualConversation(question: string): boolean {
   const q = normalize(question);
@@ -47,18 +64,158 @@ function isCasualConversation(question: string): boolean {
   ].includes(q);
 }
 
-/**
- * Mengubah tulisan seperti:
- *
- * 8 juta
- * 8 jt
- * 8jt
- * 8.000.000
- * 8000000
- * 8,5 juta
- *
- * menjadi angka rupiah.
- */
+/* =========================================================
+   INTENT
+========================================================= */
+
+function isComparisonQuestion(question: string): boolean {
+  const q = normalize(question);
+
+  const comparisonWords = [
+    "perbedaan",
+    "perbedaan antara",
+    "beda",
+    "bedanya",
+    "apa bedanya",
+    "apa perbedaannya",
+    "dibandingkan",
+    "bandingkan",
+    "perbandingan",
+    "mana yang berbeda",
+    "sama atau beda",
+  ];
+
+  return comparisonWords.some((word) => q.includes(word));
+}
+
+function isSimilarityQuestion(question: string): boolean {
+  const q = normalize(question);
+
+  return [
+    "persamaan",
+    "apa persamaan",
+    "sama-sama",
+    "sama sama",
+    "kesamaan",
+    "apa yang sama",
+  ].some((word) => q.includes(word));
+}
+
+function isExampleQuestion(question: string): boolean {
+  const q = normalize(question);
+
+  return [
+    "contoh",
+    "contohnya",
+    "misalnya",
+    "contoh kasus",
+    "beri contoh",
+    "kasih contoh",
+  ].some((word) => q.includes(word));
+}
+
+function isLawQuestion(question: string): boolean {
+  const q = normalize(question);
+
+  return [
+    "hukumnya",
+    "apa hukumnya",
+    "hukum",
+    "wajib atau sunnah",
+    "wajib atau sunah",
+    "apakah wajib",
+    "apakah sunnah",
+    "apakah sunah",
+    "boleh tidak",
+    "boleh gak",
+    "bolehkah",
+  ].some((word) => q.includes(word));
+}
+
+function isHowQuestion(question: string): boolean {
+  const q = normalize(question);
+
+  return [
+    "bagaimana cara",
+    "cara",
+    "bagaimana",
+    "gimana cara",
+    "prosedur",
+    "langkah",
+    "cara membayar",
+    "cara menyalurkan",
+  ].some((word) => q.includes(word));
+}
+
+function isWhyQuestion(question: string): boolean {
+  const q = normalize(question);
+
+  return [
+    "kenapa",
+    "mengapa",
+    "mengapa harus",
+    "kenapa harus",
+    "alasan",
+    "apa alasannya",
+  ].some((word) => q.includes(word));
+}
+
+function asksForCalculation(question: string): boolean {
+  const q = normalize(question);
+
+  return [
+    "hitung",
+    "hitungkan",
+    "perhitungkan",
+    "berapa zakat",
+    "zakat berapa",
+    "kena zakat",
+    "wajib zakat",
+    "bayar zakat berapa",
+    "harus bayar zakat",
+  ].some((phrase) => q.includes(phrase));
+}
+
+function asksAboutNisab(question: string): boolean {
+  const q = normalize(question);
+
+  return (
+    q.includes("nisab") ||
+    q.includes("nishab") ||
+    q.includes("batas wajib zakat") ||
+    q.includes("batas minimal zakat")
+  );
+}
+
+/* =========================================================
+   INCOME DETECTION
+========================================================= */
+
+function looksLikeIncomeQuestion(question: string): boolean {
+  const q = normalize(question);
+
+  const keywords = [
+    "gaji",
+    "penghasilan",
+    "pendapatan",
+    "honor",
+    "honorarium",
+    "upah",
+    "profesi",
+    "profesional",
+    "salary",
+    "income",
+    "zakat penghasilan",
+    "zakat gaji",
+  ];
+
+  return keywords.some((word) => q.includes(word));
+}
+
+/* =========================================================
+   RUPIAH
+========================================================= */
+
 function parseRupiah(text: string): number | null {
   const q = normalize(text);
 
@@ -127,59 +284,10 @@ function formatRupiah(value: number): string {
   }).format(value);
 }
 
-function looksLikeIncomeQuestion(question: string): boolean {
-  const q = normalize(question);
+/* =========================================================
+   JAWABAN CEPAT PENGHASILAN
+========================================================= */
 
-  const keywords = [
-    "gaji",
-    "penghasilan",
-    "pendapatan",
-    "honor",
-    "honorarium",
-    "upah",
-    "profesi",
-    "profesional",
-    "salary",
-    "income",
-    "zakat penghasilan",
-    "zakat gaji",
-  ];
-
-  return keywords.some((word) => q.includes(word));
-}
-
-function asksAboutNisab(question: string): boolean {
-  const q = normalize(question);
-
-  return (
-    q.includes("nisab") ||
-    q.includes("nishab") ||
-    q.includes("batas wajib zakat") ||
-    q.includes("batas minimal zakat")
-  );
-}
-
-function asksForCalculation(question: string): boolean {
-  const q = normalize(question);
-
-  return [
-    "hitung",
-    "hitungkan",
-    "perhitungkan",
-    "berapa zakat",
-    "zakat berapa",
-    "kena zakat",
-    "wajib zakat",
-    "bayar zakat berapa",
-    "harus bayar zakat",
-  ].some((phrase) => q.includes(phrase));
-}
-
-/**
- * Jawaban cepat untuk pertanyaan nisab penghasilan.
- *
- * Tidak perlu memanggil Gemini.
- */
 function getIncomeNisabAnswer(): string {
   return (
     `Untuk tahun 2026, nisab zakat penghasilan dan jasa adalah ` +
@@ -191,15 +299,6 @@ function getIncomeNisabAnswer(): string {
   );
 }
 
-/**
- * Jawaban cepat untuk perhitungan gaji.
- *
- * Contoh:
- * gaji 8 juta kena zakat gak
- * gaji 8jt
- * zakat gaji 10 juta
- * penghasilan 15 juta berapa zakat
- */
 function calculateIncomeZakat(
   question: string
 ): string | null {
@@ -213,11 +312,13 @@ function calculateIncomeZakat(
     return null;
   }
 
+  const normalizedQuestion = normalize(question);
+
   if (
     !asksForCalculation(question) &&
-    !question.includes("zakat") &&
-    !question.includes("gaji") &&
-    !question.includes("penghasilan")
+    !normalizedQuestion.includes("zakat") &&
+    !normalizedQuestion.includes("gaji") &&
+    !normalizedQuestion.includes("penghasilan")
   ) {
     return null;
   }
@@ -226,7 +327,9 @@ function calculateIncomeZakat(
     return (
       `Kalau penghasilan Kakak ${formatRupiah(amount)} per bulan, ` +
       `jumlah tersebut masih di bawah nisab zakat penghasilan 2026 ` +
-      `sebesar ${formatRupiah(NISAB_PENGHASILAN_2026)} per bulan.\n\n` +
+      `sebesar ${formatRupiah(
+        NISAB_PENGHASILAN_2026
+      )} per bulan.\n\n` +
       `Jadi, berdasarkan nisab bulanan tersebut, belum wajib zakat penghasilan. ` +
       `Namun tetap boleh berinfak atau bersedekah sesuai kemampuan. 😊`
     );
@@ -246,97 +349,156 @@ function calculateIncomeZakat(
   );
 }
 
-/**
- * Pencarian FAQ lokal.
- *
- * Kita tidak lagi mengirim 60 FAQ sekaligus ke Gemini.
- */
-function findBestFAQ(question: string) {
+/* =========================================================
+   FAQ SEARCH
+========================================================= */
+
+function getRelevantKnowledge(
+  question: string,
+  limit = 8
+) {
   const q = normalize(question);
 
-  let best:
-    | {
-        faq: (typeof ZAVIRA_FAQ)[number];
-        score: number;
-      }
-    | null = null;
+  /*
+   * Kata penting yang harus dipertahankan ketika
+   * pengguna menanyakan beberapa objek sekaligus.
+   */
+  const topicTerms = [
+    "zakat",
+    "infak",
+    "infaq",
+    "sedekah",
+    "zakat penghasilan",
+    "zakat mal",
+    "zakat pertanian",
+    "zakat peternakan",
+    "zakat perdagangan",
+    "zakat fitrah",
+    "nisab",
+    "kadar",
+    "muzaki",
+    "muzakki",
+    "munfik",
+    "mustahik",
+  ];
 
-  for (const faq of ZAVIRA_FAQ) {
+  const requestedTopics = topicTerms.filter((term) =>
+    q.includes(term)
+  );
+
+  const scored = ZAVIRA_FAQ.map((faq) => {
     let score = 0;
 
     const questionText = normalize(faq.question);
+    const answerText = normalize(faq.answer);
 
+    const keywordText = faq.keywords
+      .map((keyword) => normalize(keyword))
+      .join(" ");
+
+    /* Exact question */
     if (q === questionText) {
       score += 100;
     }
 
-    if (q.includes(questionText)) {
-      score += 50;
+    /* Pertanyaan mengandung judul FAQ */
+    if (
+      questionText.length >= 5 &&
+      q.includes(questionText)
+    ) {
+      score += 60;
     }
 
-    for (const keyword of faq.keywords) {
-      const keywordNormalized = normalize(keyword);
+    /* FAQ mengandung pertanyaan pengguna */
+    if (
+      q.length >= 5 &&
+      questionText.includes(q)
+    ) {
+      score += 30;
+    }
 
-      if (q.includes(keywordNormalized)) {
-        score += Math.max(5, keywordNormalized.length);
+    /* Keyword FAQ */
+    for (const keyword of faq.keywords) {
+      const normalizedKeyword = normalize(keyword);
+
+      if (
+        normalizedKeyword.length >= 3 &&
+        q.includes(normalizedKeyword)
+      ) {
+        score += 15;
       }
     }
 
+    /* Token pertanyaan */
     const words = q
       .split(" ")
       .filter((word) => word.length >= 3);
 
     for (const word of words) {
       if (questionText.includes(word)) {
+        score += 4;
+      }
+
+      if (keywordText.includes(word)) {
         score += 2;
       }
-    }
 
-    if (!best || score > best.score) {
-      best = {
-        faq,
-        score,
-      };
-    }
-  }
-
-  if (!best || best.score < 7) {
-    return null;
-  }
-
-  return best.faq;
-}
-
-/**
- * Mengambil FAQ yang paling relevan untuk diberikan kepada Gemini.
- *
- * Maksimal beberapa item saja.
- */
-function getRelevantKnowledge(question: string) {
-  const q = normalize(question);
-
-  const scored = ZAVIRA_FAQ.map((faq) => {
-    let score = 0;
-
-    const text = normalize(
-      `${faq.question} ${faq.answer} ${faq.keywords.join(" ")}`
-    );
-
-    const words = q
-      .split(" ")
-      .filter((word) => word.length >= 3);
-
-    for (const word of words) {
-      if (text.includes(word)) {
+      if (answerText.includes(word)) {
         score += 1;
       }
     }
 
-    for (const keyword of faq.keywords) {
-      const keywordNormalized = normalize(keyword);
+    /*
+     * BOOST MULTI-TOPIK
+     *
+     * Contoh:
+     * "apa beda infak dan sedekah"
+     *
+     * FAQ tentang infak harus masuk.
+     * FAQ tentang sedekah juga harus masuk.
+     */
+    if (requestedTopics.length >= 2) {
+      for (const topic of requestedTopics) {
+        if (
+          questionText.includes(topic) ||
+          keywordText.includes(topic) ||
+          answerText.includes(topic)
+        ) {
+          score += 25;
+        }
+      }
+    }
 
-      if (q.includes(keywordNormalized)) {
-        score += 5;
+    /* Boost khusus pertanyaan perbandingan */
+    if (isComparisonQuestion(question)) {
+      const comparisonTerms = [
+        "zakat",
+        "infak",
+        "infaq",
+        "sedekah",
+        "penghasilan",
+        "mal",
+        "pertanian",
+        "peternakan",
+        "perdagangan",
+        "fitrah",
+        "muzaki",
+        "muzakki",
+        "munfik",
+        "mustahik",
+      ];
+
+      for (const term of comparisonTerms) {
+        if (
+          q.includes(term) &&
+          (
+            questionText.includes(term) ||
+            keywordText.includes(term) ||
+            answerText.includes(term)
+          )
+        ) {
+          score += 12;
+        }
       }
     }
 
@@ -347,29 +509,17 @@ function getRelevantKnowledge(question: string) {
   });
 
   return scored
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 5)
     .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
     .map((item) => item.faq);
 }
 
-function cleanAnswer(answer: string): string {
-  return answer
-    .replace(/^Jawaban:\s*/i, "")
-    .replace(/^ZAVIRA:\s*/i, "")
-    .replace(/^ZAVIRA AI:\s*/i, "")
-    .replace(/\*\*/g, "")
-    .trim();
-}
+/* =========================================================
+   GEMINI MODEL
+========================================================= */
 
 function getGeminiModel(): string {
-  /**
-   * Kalau .env masih:
-   *
-   * GEMINI_MODEL=gemini-2.5-flash
-   *
-   * otomatis diarahkan ke model baru.
-   */
   const envModel = process.env.GEMINI_MODEL?.trim();
 
   if (
@@ -383,12 +533,13 @@ function getGeminiModel(): string {
   return envModel;
 }
 
+/* =========================================================
+   GEMINI
+========================================================= */
+
 async function generateGeminiAnswer(
   question: string,
-  history: Array<{
-    role: "user" | "assistant";
-    content: string;
-  }> = []
+  history: ChatMessage[] = []
 ): Promise<string | null> {
   const apiKey = process.env.GEMINI_API_KEY;
 
@@ -402,24 +553,36 @@ async function generateGeminiAnswer(
 
   const model = getGeminiModel();
 
-  const relevantKnowledge = getRelevantKnowledge(question);
+  /*
+   * Pertanyaan perbandingan membutuhkan lebih banyak
+   * materi karena biasanya menyentuh minimal 2 topik.
+   */
+  const knowledgeLimit = isComparisonQuestion(question)
+    ? 12
+    : isSimilarityQuestion(question)
+      ? 12
+      : 8;
+
+  const relevantKnowledge = getRelevantKnowledge(
+    question,
+    knowledgeLimit
+  );
 
   const knowledgeText =
     relevantKnowledge.length > 0
       ? relevantKnowledge
           .map(
-            (faq) =>
-              `Q: ${faq.question}\nA: ${faq.answer}`
+            (faq, index) =>
+              `[MATERI ${index + 1}]
+Pertanyaan: ${faq.question}
+Jawaban: ${faq.answer}
+Kata kunci: ${faq.keywords.join(", ")}`
           )
           .join("\n\n")
-      : "Tidak ada materi FAQ yang sangat relevan.";
+      : "Tidak ditemukan materi FAQ yang relevan.";
 
-  /**
-   * Hanya kirim beberapa chat terakhir.
-   * Jangan kirim seluruh percakapan.
-   */
   const recentHistory = history
-    .slice(-6)
+    .slice(-8)
     .map(
       (item) =>
         `${item.role === "user" ? "Pengguna" : "ZAVIRA"}: ${
@@ -428,55 +591,293 @@ async function generateGeminiAnswer(
     )
     .join("\n");
 
+  /* =======================================================
+     INTENT INSTRUCTIONS
+  ======================================================= */
+
+  const intentInstructions = `
+INTENT PERTANYAAN:
+
+${
+  isComparisonQuestion(question)
+    ? `PERTANYAAN PERBANDINGAN.
+
+Ini adalah pertanyaan perbandingan.
+
+WAJIB:
+1. Identifikasi SEMUA objek yang dibandingkan.
+2. Jelaskan objek pertama.
+3. Jelaskan objek kedua.
+4. Jelaskan PERBEDAAN UTAMA.
+5. Jika materi mendukung, tambahkan persamaan.
+6. Jika pengguna meminta atau memang membantu, berikan contoh.
+
+JANGAN:
+- hanya menjelaskan salah satu objek;
+- mengabaikan objek kedua;
+- mengambil satu FAQ lalu berhenti.
+
+Gunakan struktur yang jelas dan ringkas.`
+    : ""
+}
+
+${
+  isSimilarityQuestion(question)
+    ? `PERTANYAAN PERSAMAAN.
+
+Fokus pada kesamaan kedua atau beberapa hal yang ditanyakan.
+
+Bahas semua objek yang dibandingkan.
+Jangan berubah menjadi penjelasan satu istilah saja.`
+    : ""
+}
+
+${
+  isExampleQuestion(question)
+    ? `PERTANYAAN CONTOH.
+
+Berikan contoh konkret berdasarkan materi yang tersedia.
+Jangan membuat contoh yang bertentangan dengan materi.`
+    : ""
+}
+
+${
+  isLawQuestion(question)
+    ? `PERTANYAAN HUKUM.
+
+Jelaskan status hukumnya berdasarkan materi yang tersedia.
+Jangan membuat hukum atau ketentuan baru.`
+    : ""
+}
+
+${
+  isHowQuestion(question)
+    ? `PERTANYAAN CARA.
+
+Berikan langkah atau cara yang memang didukung oleh materi.`
+    : ""
+}
+
+${
+  isWhyQuestion(question)
+    ? `PERTANYAAN ALASAN.
+
+Jelaskan alasan berdasarkan materi yang tersedia.`
+    : ""
+}
+`;
+
+  /* =======================================================
+     PROMPT UTAMA
+  ======================================================= */
+
   const prompt = `
-Kamu adalah ZAVIRA AI — Zakat Virtual Assistant.
+Kamu adalah ZAVIRA AI — Zakat Virtual Assistant resmi BAZNAS NTB.
 
-Kamu membantu pengguna tentang:
-- zakat
-- infak
-- sedekah
-- zakat penghasilan
-- zakat mal
-- zakat pertanian
-- zakat peternakan
-- zakat perdagangan
+IDENTITAS:
 
-GAYA:
+- Nama: ZAVIRA AI
+- Kepanjangan: Zakat Virtual Assistant
+- Institusi: BAZNAS NTB
+
+TUGAS UTAMA:
+
+Membantu masyarakat memahami zakat, infak, sedekah, dan informasi terkait berdasarkan materi pengetahuan yang diberikan.
+
+TOPIK YANG DILAYANI:
+
+- Zakat
+- Infak
+- Sedekah
+- Zakat penghasilan
+- Zakat mal
+- Zakat pertanian
+- Zakat peternakan
+- Zakat perdagangan
+- Nisab
+- Kadar zakat
+- Muzaki
+- Mustahik
+- Penyaluran zakat
+- Pertanyaan lanjutan yang masih berkaitan dengan topik tersebut
+
+==================================================
+ATURAN PALING PENTING
+==================================================
+
+1. Pahami MAKSUD pertanyaan, bukan hanya kata kuncinya.
+
+2. Jika pengguna bertanya:
+   "apa perbedaan A dan B"
+   maka WAJIB membahas A DAN B.
+
+3. Jangan pernah menjawab pertanyaan perbandingan hanya dengan definisi salah satu objek.
+
+4. Jika pengguna menyebut dua topik, pastikan materi untuk kedua topik tersebut dipertimbangkan.
+
+5. Jika pengguna bertanya:
+   "apa persamaan A dan B"
+   bahas A DAN B serta kesamaannya.
+
+6. Jika pengguna bertanya "kenapa", jelaskan alasannya berdasarkan materi.
+
+7. Jika pengguna meminta contoh, berikan contoh berdasarkan materi.
+
+8. Jika pengguna melakukan pertanyaan lanjutan, gunakan RIWAYAT PERCAKAPAN untuk memahami konteks.
+
+9. Gunakan beberapa materi FAQ sekaligus jika pertanyaan membutuhkan gabungan informasi.
+
+10. FAQ adalah SUMBER PENGETAHUAN.
+    Jangan sekadar menyalin satu FAQ.
+
+11. Jangan mengarang fakta yang tidak ada dalam materi.
+
+12. Jangan mengarang:
+    - angka;
+    - nisab;
+    - persentase;
+    - rekening;
+    - nomor WhatsApp;
+    - kebijakan;
+    - aturan BAZNAS NTB;
+    - ketentuan syariat yang tidak tersedia dalam materi.
+
+13. Jika informasi tidak tersedia atau materi tidak cukup untuk memastikan jawaban, gunakan fallback.
+
+14. Jangan mengatakan:
+    - "berdasarkan database"
+    - "berdasarkan knowledge base"
+    - "berdasarkan prompt"
+    - "menurut context"
+    - "berdasarkan context"
+    - "saya sebagai AI"
+
+15. Jangan menyebut proses internal pencarian materi.
+
+16. Jangan membuat seolah-olah ZAVIRA adalah petugas manusia.
+
+17. Jika pertanyaan membutuhkan keputusan resmi atau kasus khusus, arahkan secara sopan kepada petugas BAZNAS NTB.
+
+==================================================
+ATURAN KHUSUS PERBANDINGAN
+==================================================
+
+Jika pengguna bertanya tentang perbedaan dua hal, misalnya:
+
+"apa beda infak dan sedekah"
+
+JAWABAN HARUS membahas:
+
+- Infak
+- Sedekah
+- Perbedaan utama
+- Persamaan jika relevan
+- Contoh jika membantu
+
+Jangan hanya menjawab:
+"Infak adalah..."
+
+Kemudian berhenti.
+
+Untuk pertanyaan perbandingan, gunakan struktur seperti:
+
+**Perbedaannya:**
+
+- **Infak:** ...
+- **Sedekah:** ...
+
+**Intinya:**
+...
+
+Jika informasi mendukung, tambahkan:
+
+**Contoh:**
+...
+
+==================================================
+GAYA JAWABAN
+==================================================
+
 - Bahasa Indonesia.
 - Ramah.
-- Natural seperti petugas customer service.
-- Singkat.
+- Hangat.
+- Natural.
+- Profesional tetapi tidak kaku.
+- Seperti asisten yang benar-benar memahami pertanyaan.
 - Langsung ke inti.
-- Jangan bertele-tele.
-- Jangan mengulang pertanyaan.
-- Jangan menggunakan pembukaan panjang.
-- Jangan menyebut database, knowledge base, prompt, context, atau AI model.
+- Paragraf pendek.
+- Gunakan bullet point jika membantu.
 - Emoji secukupnya.
+- Jangan mengulang pertanyaan pengguna.
+- Jangan terlalu panjang untuk pertanyaan sederhana.
+- Jangan terlalu pendek untuk pertanyaan yang membutuhkan perbandingan atau penjelasan.
 
-PENTING:
-- Jangan mengarang angka.
-- Jangan mengarang nisab.
-- Jangan mengarang persentase.
-- Jangan mengarang rekening.
-- Jangan mengarang nomor WhatsApp.
-- Jangan membuat kebijakan BAZNAS NTB.
-- Gunakan materi yang diberikan.
-- Jika informasi tidak tersedia, gunakan fallback.
+Untuk perbandingan, jawaban boleh lebih dari 3 paragraf jika memang diperlukan.
+
+==================================================
+KEAMANAN INFORMASI
+==================================================
+
+Gunakan hanya informasi yang didukung oleh materi.
+
+Jika beberapa materi relevan, gabungkan dengan hati-hati.
+
+Jika materi tidak cukup untuk menjawab pertanyaan, jangan menebak.
 
 FALLBACK:
+
 "${FALLBACK}"
 
-DATA RELEVAN:
+==================================================
+MATERI PENGETAHUAN
+==================================================
+
 ${knowledgeText}
 
-RIWAYAT SINGKAT:
-${recentHistory || "Tidak ada riwayat."}
+==================================================
+RIWAYAT PERCAKAPAN
+==================================================
+
+${recentHistory || "Belum ada riwayat percakapan."}
+
+==================================================
+${intentInstructions}
+==================================================
 
 PERTANYAAN TERBARU:
+
 ${question}
 
-JAWAB MAKSIMAL 3 PARAGRAF PENDEK.
-Jika pertanyaan dapat dijawab dengan angka yang tersedia di materi, langsung berikan angkanya.
+==================================================
+INSTRUKSI TERAKHIR
+==================================================
+
+Sebelum menjawab, pahami dulu apa yang sebenarnya diminta pengguna.
+
+Jika pertanyaan meminta PERBANDINGAN:
+- identifikasi semua objek;
+- gunakan materi untuk semua objek;
+- jawab sebagai perbandingan;
+- jangan hanya menjelaskan satu objek.
+
+Jika pertanyaan meminta PERSAMAAN:
+- bahas semua objek;
+- fokus pada kesamaan.
+
+Jika pertanyaan meminta PENJELASAN:
+- jelaskan secara natural.
+
+Jika pertanyaan meminta CONTOH:
+- berikan contoh.
+
+Jika pertanyaan merupakan LANJUTAN:
+- sambungkan dengan konteks percakapan sebelumnya.
+
+Jawab secara ringkas tetapi LENGKAP.
+
+Jangan memotong jawaban sebelum semua bagian penting dari pertanyaan terjawab.
+
+Jangan mengarang informasi di luar materi.
 `;
 
   const endpoint =
@@ -489,6 +890,14 @@ Jika pertanyaan dapat dijawab dengan angka yang tersedia di materi, langsung ber
   console.log("ZAVIRA GEMINI REQUEST");
   console.log("MODEL:", model);
   console.log("QUESTION:", question);
+  console.log(
+    "INTENT COMPARISON:",
+    isComparisonQuestion(question)
+  );
+  console.log(
+    "INTENT SIMILARITY:",
+    isSimilarityQuestion(question)
+  );
   console.log(
     "RELEVANT FAQ:",
     relevantKnowledge.length
@@ -512,10 +921,9 @@ Jika pertanyaan dapat dijawab dengan angka yang tersedia di materi, langsung ber
             ],
           },
         ],
-
         generationConfig: {
-          temperature: 0.15,
-          maxOutputTokens: 350,
+          temperature: 0.2,
+          maxOutputTokens: 1200,
         },
       }),
     });
@@ -582,6 +990,22 @@ Jika pertanyaan dapat dijawab dengan angka yang tersedia di materi, langsung ber
   }
 }
 
+/* =========================================================
+   CLEAN ANSWER
+========================================================= */
+
+function cleanAnswer(answer: string): string {
+  return answer
+    .replace(/^Jawaban:\s*/i, "")
+    .replace(/^ZAVIRA:\s*/i, "")
+    .replace(/^ZAVIRA AI:\s*/i, "")
+    .trim();
+}
+
+/* =========================================================
+   POST
+========================================================= */
+
 export async function POST(
   request: NextRequest
 ) {
@@ -593,16 +1017,21 @@ export async function POST(
         ? body.message.trim()
         : "";
 
-    const history = Array.isArray(body?.history)
-      ? body.history
-          .filter(
-            (item: any) =>
-              (item?.role === "user" ||
-                item?.role === "assistant") &&
-              typeof item?.content === "string"
-          )
-          .slice(-8)
-      : [];
+    const history: ChatMessage[] =
+      Array.isArray(body?.history)
+        ? body.history
+            .filter(
+              (item: any) =>
+                (item?.role === "user" ||
+                  item?.role === "assistant") &&
+                typeof item?.content === "string"
+            )
+            .slice(-8)
+        : [];
+
+    /* =====================================================
+       VALIDATION
+    ===================================================== */
 
     if (!question) {
       return NextResponse.json(
@@ -626,9 +1055,10 @@ export async function POST(
       );
     }
 
-    /**
-     * 1. GREETING
-     */
+    /* =====================================================
+       1. GREETING
+    ===================================================== */
+
     if (isGreeting(question)) {
       return NextResponse.json({
         success: true,
@@ -636,9 +1066,10 @@ export async function POST(
       });
     }
 
-    /**
-     * 2. CASUAL
-     */
+    /* =====================================================
+       2. CASUAL
+    ===================================================== */
+
     if (isCasualConversation(question)) {
       const q = normalize(question);
 
@@ -661,11 +1092,10 @@ export async function POST(
       });
     }
 
-    /**
-     * 3. NISAB PENGHASILAN
-     *
-     * Ini langsung dijawab tanpa Gemini.
-     */
+    /* =====================================================
+       3. NISAB PENGHASILAN
+    ===================================================== */
+
     if (
       looksLikeIncomeQuestion(question) &&
       asksAboutNisab(question)
@@ -676,16 +1106,10 @@ export async function POST(
       });
     }
 
-    /**
-     * 4. HITUNG GAJI / PENGHASILAN
-     *
-     * Ini juga langsung.
-     *
-     * Contoh:
-     * "gaji 8 jt kena zakat gak"
-     * "gaji 10 juta"
-     * "penghasilan 15jt zakat berapa"
-     */
+    /* =====================================================
+       4. HITUNG PENGHASILAN
+    ===================================================== */
+
     const calculatedIncome =
       calculateIncomeZakat(question);
 
@@ -696,41 +1120,24 @@ export async function POST(
       });
     }
 
-    /**
-     * 5. FAQ LOCAL
-     *
-     * Kalau sudah ada jawaban yang cocok,
-     * tidak perlu memanggil Gemini.
-     */
-    const faq = findBestFAQ(question);
+    /* =====================================================
+       5. SEMUA PERTANYAAN KONSEPTUAL
+    ===================================================== */
 
-    if (faq) {
-      return NextResponse.json({
-        success: true,
-        reply: faq.answer,
-      });
-    }
-
-    /**
-     * 6. GEMINI
-     *
-     * Hanya pertanyaan yang benar-benar
-     * membutuhkan pemahaman kontekstual.
-     */
     const answer = await generateGeminiAnswer(
       question,
       history
     );
 
+    /* =====================================================
+       6. GEMINI GAGAL
+    ===================================================== */
+
     if (!answer) {
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            "ZAVIRA sedang mengalami gangguan saat menghubungi layanan AI.",
-        },
-        { status: 500 }
-      );
+      return NextResponse.json({
+        success: true,
+        reply: FALLBACK,
+      });
     }
 
     const cleanedAnswer = cleanAnswer(answer);

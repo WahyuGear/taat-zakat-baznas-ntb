@@ -18,6 +18,7 @@ type UserData = {
   email: string;
   phone: string | null;
   image: string | null;
+  npwz: string | null;
 };
 
 export default function EditProfilePage() {
@@ -284,6 +285,28 @@ export default function EditProfilePage() {
           </div>
 
         </section>
+
+        <section className="mt-4 rounded-3xl border border-green-100 bg-green-50 p-5">
+  <div className="flex items-center justify-between gap-4">
+    <div>
+      <p className="text-[10px] font-bold text-green-800">
+        NPWZ
+      </p>
+
+      <p className="mt-1 text-base font-extrabold tracking-wide text-green-900">
+        {user.npwz || "Belum tersedia"}
+      </p>
+
+      <p className="mt-1 text-[8px] leading-4 text-green-700/70">
+        Nomor Pokok Wajib Zakat Anda
+      </p>
+    </div>
+
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-green-700 shadow-sm">
+      <span className="text-xs font-black">NP</span>
+    </div>
+  </div>
+</section>
 
         {/* FORM */}
         <form

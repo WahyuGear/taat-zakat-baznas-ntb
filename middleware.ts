@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyToken } from "@/lib/auth/jwt";
+import { verifyTokenEdge } from "@/lib/auth/jwt-edge";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Ambil token dari cookie
   const token = request.cookies.get("token")?.value;
 
   // ================================
@@ -12,11 +11,10 @@ export function middleware(request: NextRequest) {
   // ================================
 
   if (pathname.startsWith("/admin")) {
-    // Halaman login tidak perlu token
+    // Login admin tidak membutuhkan token
     if (pathname === "/admin/login") {
-      // Kalau sudah login, jangan kembali ke login
       if (token) {
-        const user = verifyToken(token);
+        const user = await verifyTokenEdge(token);
 
         if (user) {
           return NextResponse.redirect(
@@ -35,7 +33,7 @@ export function middleware(request: NextRequest) {
       );
     }
 
-    const user = verifyToken(token);
+    const user = await verifyTokenEdge(token);
 
     // Token tidak valid / expired
     if (!user) {
@@ -59,7 +57,7 @@ export function middleware(request: NextRequest) {
     }
 
     // ================================
-    // AREA KHUSUS SUPER ADMIN
+    // KHUSUS SUPER ADMIN
     // ================================
 
     if (pathname.startsWith("/admin/users")) {

@@ -25,6 +25,7 @@
     "exceljs": "^4.4.0",
     "fontkit": "^2.0.4",
     "install": "^0.13.0",
+    "jose": "^6.2.10",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.29.0",
     "midtrans-client": "^1.4.3",

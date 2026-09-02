@@ -62,6 +62,7 @@ export async function GET() {
         phone: true,
         image: true,
         role: true,
+        npwz: true,
       },
     });
 
