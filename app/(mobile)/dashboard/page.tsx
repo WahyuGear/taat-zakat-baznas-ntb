@@ -168,54 +168,25 @@ export default async function UserDashboardPage() {
           </p>
         </section>
 
-{/* =========================
-    CARD NPWZ
-========================= */}
-<section className="mt-4">
-  <div className="relative w-full overflow-hidden rounded-3xl">
-    <Image
-      src="/images/npwz-card.png"
-      alt="Kartu NPWZ BAZNAS NTB"
-      width={860}
-      height={540}
-      className="h-auto w-full"
-      priority
-    />
-
-    <div
-      className={`absolute left-[8%] top-[50%] text-black ${monomaniac.className}`}
-    >
-      <p
-        className="font-bold text-[12px] leading-none"
-        style={{
-          textShadow: "1px 1px 1px rgba(255,255,255,0.7)",
-        }}
-      >
-        NPWZ :
-      </p>
-
-      <p
-        className="mt-1 font-bold text-[20px] leading-none tracking-wide"
-        style={{
-          textShadow: "1px 1px 1px rgba(255,255,255,0.7)",
-        }}
-      >
-        {user.npwz
-          ? `${user.npwz.slice(0, 7)} ${user.npwz.slice(7, 8)} ${user.npwz.slice(8)}`
-          : "Belum tersedia"}
-      </p>
-
-      <p
-        className="mt-2 font-bold text-[16px] leading-none"
-        style={{
-          textShadow: "1px 1px 1px rgba(255,255,255,0.7)",
-        }}
-      >
-        {user.name || "Nama Muzaki"}
-      </p>
-    </div>
+        <Link
+  href="/dashboard/npwz"
+  className="mt-3 flex items-center gap-3 rounded-2xl border border-green-100 bg-white p-4 shadow-sm transition active:scale-[0.98]"
+>
+  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-700">
+    <FileText className="h-5 w-5" />
   </div>
-</section>
+
+  <div className="flex-1">
+    <p className="text-sm font-bold text-gray-900">
+      Kartu NPWZ
+    </p>
+    <p className="text-[11px] text-gray-500">
+      Lihat & download kartu NPWZ
+    </p>
+  </div>
+
+  <ChevronRight className="h-5 w-5 text-gray-400" />
+</Link>
 
         {/* =========================
             STATISTIK
