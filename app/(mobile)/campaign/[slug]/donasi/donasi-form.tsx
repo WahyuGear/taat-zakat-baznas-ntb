@@ -7,6 +7,22 @@ interface Props {
   slug: string;
 }
 
+declare global {
+  interface Window {
+    snap?: {
+      pay: (
+        token: string,
+        options?: {
+          onSuccess?: (result: unknown) => void;
+          onPending?: (result: unknown) => void;
+          onError?: (result: unknown) => void;
+          onClose?: () => void;
+        }
+      ) => void;
+    };
+  }
+}
+
 export default function DonasiForm({ slug }: Props) {
   const [form, setForm] = useState({
     donorName: "",
@@ -25,9 +41,7 @@ export default function DonasiForm({ slug }: Props) {
     }));
   }
 
-  async function handleSubmit(
-    e: React.FormEvent
-  ) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!form.donorName.trim()) {
@@ -45,51 +59,103 @@ export default function DonasiForm({ slug }: Props) {
       return;
     }
 
-    if (
-      !form.amount ||
-      Number(form.amount) <= 0
-    ) {
+    if (!form.amount || Number(form.amount) <= 0) {
       alert("Nominal donasi wajib diisi");
+      return;
+    }
+
+    if (!window.snap) {
+      alert("Sistem pembayaran belum siap. Silakan coba lagi.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "/api/donation",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            donorName: form.donorName,
-            email: form.email,
-            phone: form.phone,
-            amount: Number(form.amount),
-            message: form.message,
-            campaignSlug: slug,
-          }),
-        }
-      );
+      const response = await fetch("/api/donation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          donorName: form.donorName,
+          email: form.email,
+          phone: form.phone,
+          amount: Number(form.amount),
+          message: form.message,
+          campaignSlug: slug,
+        }),
+      });
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || !data.success) {
         alert(
-          data.message ||
-            "Gagal membuat donasi"
+          data.message || "Gagal membuat transaksi"
         );
         return;
       }
 
-      alert("Donasi berhasil dibuat");
+      if (!data.token) {
+        alert("Token pembayaran tidak tersedia.");
+        return;
+      }
 
-      window.location.href = "/dashboard";
+      // =========================
+      // BUKA MIDTRANS SNAP POPUP
+      // =========================
+
+      window.snap.pay(data.token, {
+        onSuccess: (result) => {
+          console.log(
+            "MIDTRANS SUCCESS:",
+            result
+          );
+
+          alert(
+            "Pembayaran berhasil. Terima kasih atas donasi Anda."
+          );
+
+          window.location.href = "/dashboard";
+        },
+
+        onPending: (result) => {
+          console.log(
+            "MIDTRANS PENDING:",
+            result
+          );
+
+          alert(
+            "Pembayaran masih menunggu penyelesaian."
+          );
+        },
+
+        onError: (result) => {
+          console.error(
+            "MIDTRANS ERROR:",
+            result
+          );
+
+          alert(
+            "Pembayaran gagal. Silakan coba lagi."
+          );
+        },
+
+        onClose: () => {
+          console.log(
+            "MIDTRANS POPUP DITUTUP"
+          );
+        },
+      });
     } catch (error) {
-      console.error(error);
-      alert("Terjadi kesalahan saat memproses donasi");
+      console.error(
+        "DONATION SUBMIT ERROR:",
+        error
+      );
+
+      alert(
+        "Terjadi kesalahan saat memproses pembayaran"
+      );
     } finally {
       setLoading(false);
     }
@@ -245,7 +311,7 @@ export default function DonasiForm({ slug }: Props) {
         />
 
         {loading
-          ? "Memproses..."
+          ? "Membuat Pembayaran..."
           : "Lanjutkan Donasi"}
       </button>
     </form>
