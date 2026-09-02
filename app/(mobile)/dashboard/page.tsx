@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth/jwt";
 import LogoutButton from "./logout-button";
-import { Monomaniac_One } from "next/font/google";
 
 import {
   Heart,
@@ -17,11 +16,6 @@ import {
   Calculator,
   ShieldCheck,
 } from "lucide-react";
-
-const monomaniac = Monomaniac_One({
-  subsets: ["latin"],
-  weight: "400",
-});
 
 export default async function UserDashboardPage() {
   // =========================

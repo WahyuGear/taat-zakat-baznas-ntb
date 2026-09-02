@@ -1,21 +1,6 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  variable: "--font-poppins",
-  display: "swap",
-  weight: [
-    "300",
-    "400",
-    "500",
-    "600",
-    "700",
-    "800",
-  ],
-});
 
 export const metadata: Metadata = {
   title: "BAZNAS NTB",
@@ -34,7 +19,7 @@ export default function RootLayout({
 
   return (
     <html lang="id">
-      <body className={`${poppins.variable} font-sans`}>
+      <body className="font-poppins">
         {children}
 
         <Script

@@ -165,16 +165,25 @@ export async function POST(req: Request) {
     // MIDTRANS SNAP
     // =========================
 
-    const snap = new midtransClient.Snap({
-      isProduction:
-        process.env.MIDTRANS_IS_PRODUCTION === "true",
+    const serverKey = process.env.MIDTRANS_SERVER_KEY;
+const clientKey = process.env.MIDTRANS_CLIENT_KEY;
 
-      serverKey:
-        process.env.MIDTRANS_SERVER_KEY,
+if (!serverKey || !clientKey) {
+  return NextResponse.json(
+    {
+      success: false,
+      message: "Konfigurasi Midtrans belum lengkap",
+    },
+    { status: 500 }
+  );
+}
 
-      clientKey:
-        process.env.MIDTRANS_CLIENT_KEY,
-    });
+const snap = new midtransClient.Snap({
+  isProduction:
+    process.env.MIDTRANS_IS_PRODUCTION === "true",
+  serverKey,
+  clientKey,
+});
 
     const parameter = {
       transaction_details: {

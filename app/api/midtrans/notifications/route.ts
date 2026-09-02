@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import midtransClient from "midtrans-client";
+import crypto from "crypto";
 
 export async function POST(req: Request) {
   try {
@@ -8,7 +8,9 @@ export async function POST(req: Request) {
 
     console.log("MIDTRANS NOTIFICATION:", body);
 
-    if (!process.env.MIDTRANS_SERVER_KEY) {
+    const serverKey = process.env.MIDTRANS_SERVER_KEY;
+
+    if (!serverKey) {
       return NextResponse.json(
         {
           success: false,
@@ -18,32 +20,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const snap = new midtransClient.Snap({
-      isProduction:
-        process.env.MIDTRANS_IS_PRODUCTION === "true",
-      serverKey: process.env.MIDTRANS_SERVER_KEY,
-      clientKey: process.env.MIDTRANS_CLIENT_KEY,
-    });
-
-    // Verifikasi notification langsung melalui Midtrans
-    const notification =
-      await snap.transaction.notification(body);
-
-    const orderId = notification.order_id;
-    const transactionStatus = notification.transaction_status;
-    const fraudStatus = notification.fraud_status;
-    const transactionId = notification.transaction_id;
-    const paymentType = notification.payment_type;
-    const settlementTime = notification.settlement_time;
-
-    console.log("MIDTRANS VERIFIED:", {
-      orderId,
-      transactionStatus,
-      fraudStatus,
-      transactionId,
-      paymentType,
-      settlementTime,
-    });
+    const orderId = body.order_id;
+    const transactionStatus = body.transaction_status;
+    const fraudStatus = body.fraud_status;
+    const transactionId = body.transaction_id;
+    const paymentType = body.payment_type;
+    const settlementTime = body.settlement_time;
+    const grossAmount = body.gross_amount;
+    const signatureKey = body.signature_key;
 
     if (!orderId) {
       return NextResponse.json(
@@ -54,6 +38,40 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    /*
+     * VERIFIKASI SIGNATURE MIDTRANS
+     *
+     * SHA512:
+     * order_id + status_code + gross_amount + server_key
+     */
+    const expectedSignature = crypto
+      .createHash("sha512")
+      .update(
+        `${orderId}${body.status_code}${grossAmount}${serverKey}`
+      )
+      .digest("hex");
+
+    if (
+      !signatureKey ||
+      String(signatureKey).toLowerCase() !==
+        expectedSignature.toLowerCase()
+    ) {
+      console.error(
+        "MIDTRANS SIGNATURE TIDAK VALID:",
+        orderId
+      );
+
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Signature notification tidak valid",
+        },
+        { status: 401 }
+      );
+    }
+
+    console.log("MIDTRANS SIGNATURE VALID:", orderId);
 
     const donation = await prisma.donation.findUnique({
       where: {
@@ -73,6 +91,30 @@ export async function POST(req: Request) {
           message: "Data donasi tidak ditemukan",
         },
         { status: 404 }
+      );
+    }
+
+    /*
+     * Pastikan nominal dari Midtrans sama
+     * dengan nominal yang tersimpan di database.
+     */
+    if (
+      grossAmount !== undefined &&
+      Number(grossAmount) !== donation.amount
+    ) {
+      console.error(
+        "NOMINAL TIDAK SESUAI:",
+        orderId,
+        grossAmount,
+        donation.amount
+      );
+
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Nominal transaksi tidak sesuai",
+        },
+        { status: 400 }
       );
     }
 
@@ -102,10 +144,11 @@ export async function POST(req: Request) {
     }
 
     /*
-     * SUCCESS hanya boleh menambah collected SEKALI.
+     * SUCCESS hanya menambah collected SEKALI.
      *
-     * Kalau notification SUCCESS dikirim ulang oleh Midtrans,
-     * jangan sampai collected bertambah dua kali.
+     * Kalau Midtrans mengirim notification SUCCESS
+     * berkali-kali, donation sudah SUCCESS sehingga
+     * campaign tidak akan ditambah lagi.
      */
     if (
       newPaymentStatus === "SUCCESS" &&

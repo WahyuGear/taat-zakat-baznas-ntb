@@ -4,13 +4,7 @@ import Image from "next/image";
 import { ArrowLeft, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Monomaniac_One } from "next/font/google";
 import { toPng } from "html-to-image";
-
-const monomaniac = Monomaniac_One({
-  subsets: ["latin"],
-  weight: "400",
-});
 
 type UserData = {
   name: string | null;
@@ -62,6 +56,7 @@ export default function NPWZPage() {
       });
 
       const link = document.createElement("a");
+
       link.download = `Kartu-NPWZ-${user?.name || "Muzaki"}.png`;
       link.href = dataUrl;
       link.click();
@@ -75,7 +70,6 @@ export default function NPWZPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="mx-auto min-h-screen w-full max-w-[430px] px-4 py-5">
-
         {/* HEADER */}
         <div className="mb-5 flex items-center gap-3">
           <button
@@ -111,11 +105,9 @@ export default function NPWZPage() {
           />
 
           {!loading && (
-            <div
-              className={`absolute left-[8%] top-[50%] text-black ${monomaniac.className}`}
-            >
+            <div className="absolute left-[8%] top-[50%] text-black font-monomaniac">
               <p
-                className="font-bold text-[12px] leading-none"
+                className="text-[12px] leading-none"
                 style={{
                   textShadow:
                     "1px 1px 1px rgba(255,255,255,0.8)",
@@ -125,7 +117,7 @@ export default function NPWZPage() {
               </p>
 
               <p
-                className="mt-1 font-bold text-[20px] leading-none tracking-wide"
+                className="mt-1 text-[20px] leading-none tracking-wide"
                 style={{
                   textShadow:
                     "1px 1px 1px rgba(255,255,255,0.8)",
@@ -135,7 +127,7 @@ export default function NPWZPage() {
               </p>
 
               <p
-                className="mt-2 font-bold text-[16px] leading-none"
+                className="mt-2 text-[16px] leading-none"
                 style={{
                   textShadow:
                     "1px 1px 1px rgba(255,255,255,0.8)",
@@ -154,9 +146,11 @@ export default function NPWZPage() {
           className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-green-700 px-5 py-4 text-sm font-bold text-white shadow-sm disabled:opacity-60"
         >
           <Download className="h-5 w-5" />
-          {downloading ? "Menyiapkan Kartu..." : "Download Kartu NPWZ"}
-        </button>
 
+          {downloading
+            ? "Menyiapkan Kartu..."
+            : "Download Kartu NPWZ"}
+        </button>
       </div>
     </main>
   );

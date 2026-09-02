@@ -1,10 +1,40 @@
 @import "tailwindcss";
-
 @import "tw-animate-css";
-
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
+
+/* =========================
+   LOCAL FONTS
+   ========================= */
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Monomaniac One";
+  src: url("/fonts/MonomaniacOne-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* =========================
+   THEME
+   ========================= */
 
 @theme inline {
   --color-background: var(--background);
@@ -25,7 +55,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -33,61 +62,52 @@
   --radius-2xl: calc(var(--radius) * 1.8);
 }
 
+/* =========================
+   LIGHT MODE
+   ========================= */
+
 :root {
   --background: #ffffff;
   --foreground: #111827;
-
   --card: #ffffff;
   --card-foreground: #111827;
-
   --popover: #ffffff;
   --popover-foreground: #111827;
-
   --primary: #15803d;
   --primary-foreground: #ffffff;
-
   --secondary: #f3f4f6;
   --secondary-foreground: #111827;
-
   --muted: #f8fafc;
   --muted-foreground: #6b7280;
-
   --accent: #f3f4f6;
   --accent-foreground: #111827;
-
   --destructive: #dc2626;
-
   --border: #e5e7eb;
   --input: #e5e7eb;
   --ring: #16a34a;
-
   --radius: 1rem;
 }
+
+/* =========================
+   DARK MODE
+   ========================= */
 
 .dark {
   --background: #0f172a;
   --foreground: #f8fafc;
-
   --card: #1e293b;
   --card-foreground: #f8fafc;
-
   --popover: #1e293b;
   --popover-foreground: #f8fafc;
-
   --primary: #22c55e;
   --primary-foreground: #ffffff;
-
   --secondary: #334155;
   --secondary-foreground: #f8fafc;
-
   --muted: #1e293b;
   --muted-foreground: #94a3b8;
-
   --accent: #334155;
   --accent-foreground: #f8fafc;
-
   --destructive: #ef4444;
-
   --border: #334155;
   --input: #334155;
   --ring: #22c55e;
@@ -95,24 +115,24 @@
 
 /* =========================
    GLOBAL FONT - POPPINS
-========================= */
+   ========================= */
 
 html {
-  font-family: var(--font-poppins), sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 body {
   margin: 0;
   background: #ffffff;
   color: var(--foreground);
-  font-family: var(--font-poppins), sans-serif;
+  font-family: "Poppins", sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* =================================
+/* =========================
    BACKGROUND DESKTOP
-   ================================= */
+   ========================= */
 
 @media (min-width: 768px) {
   html,
@@ -138,6 +158,19 @@ body {
         #ffffff 40%,
         #f8fafc 100%
       );
+
     background-attachment: fixed;
   }
+}
+
+/* =========================
+   FONT UTILITIES
+   ========================= */
+
+.font-poppins {
+  font-family: "Poppins", sans-serif;
+}
+
+.font-monomaniac {
+  font-family: "Monomaniac One", sans-serif;
 }
