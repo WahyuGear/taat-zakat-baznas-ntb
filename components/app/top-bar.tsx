@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+
 import {
   Bell,
   Search,
@@ -12,6 +13,7 @@ import {
   AlertTriangle,
   XCircle,
 } from "lucide-react";
+
 import { useEffect, useRef, useState } from "react";
 
 type Campaign = {
@@ -42,88 +44,119 @@ export default function TopBar() {
   const [results, setResults] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const [notificationOpen, setNotificationOpen] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [notificationOpen, setNotificationOpen] =
+    useState(false);
+
+  const [notifications, setNotifications] = useState<
+    NotificationItem[]
+  >([]);
+
+  const [notificationsLoading, setNotificationsLoading] =
+    useState(false);
+
+  const [campaignsLoaded, setCampaignsLoaded] =
+    useState(false);
+
+  const [notificationsLoaded, setNotificationsLoaded] =
+    useState(false);
 
   const searchRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
 
   // ================================
   // AMBIL CAMPAIGN
+  // Hanya saat user mulai mencari
   // ================================
 
-  useEffect(() => {
-    async function loadCampaigns() {
-      try {
-        const response = await fetch("/api/campaigns");
-
-        if (!response.ok) {
-          console.error(
-            "Gagal mengambil campaign:",
-            response.status
-          );
-          return;
-        }
-
-        const data = await response.json();
-
-        if (Array.isArray(data)) {
-          setCampaigns(data);
-        }
-      } catch (error) {
-        console.error(
-          "Gagal mengambil campaign:",
-          error
-        );
-      }
+  async function loadCampaigns() {
+    if (campaignsLoaded) {
+      return;
     }
 
-    loadCampaigns();
-  }, []);
+    try {
+      setCampaignsLoaded(true);
+
+      const response = await fetch("/api/campaigns", {
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        console.error(
+          "Gagal mengambil campaign:",
+          response.status
+        );
+
+        setCampaignsLoaded(false);
+        return;
+      }
+
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        setCampaigns(data);
+      }
+    } catch (error) {
+      console.error(
+        "Gagal mengambil campaign:",
+        error
+      );
+
+      setCampaignsLoaded(false);
+    }
+  }
 
   // ================================
   // AMBIL NOTIFIKASI
+  // Hanya saat lonceng dibuka
   // ================================
 
-  useEffect(() => {
-    async function loadNotifications() {
-      try {
-        setNotificationsLoading(true);
-
-        const response = await fetch("/api/notifications", {
-          credentials: "include",
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          console.error(
-            "Gagal mengambil notifikasi:",
-            response.status
-          );
-          return;
-        }
-
-        const data = await response.json();
-
-        if (
-          data.success &&
-          Array.isArray(data.notifications)
-        ) {
-          setNotifications(data.notifications);
-        }
-      } catch (error) {
-        console.error(
-          "Gagal mengambil notifikasi:",
-          error
-        );
-      } finally {
-        setNotificationsLoading(false);
-      }
+  async function loadNotifications() {
+    if (notificationsLoaded) {
+      return;
     }
 
-    loadNotifications();
-  }, []);
+    try {
+      setNotificationsLoading(true);
+      setNotificationsLoaded(true);
+
+      const response = await fetch(
+        "/api/notifications",
+        {
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      if (!response.ok) {
+        console.error(
+          "Gagal mengambil notifikasi:",
+          response.status
+        );
+
+        setNotificationsLoaded(false);
+        return;
+      }
+
+      const data = await response.json();
+
+      if (
+        data.success &&
+        Array.isArray(data.notifications)
+      ) {
+        setNotifications(data.notifications);
+      }
+    } catch (error) {
+      console.error(
+        "Gagal mengambil notifikasi:",
+        error
+      );
+
+      setNotificationsLoaded(false);
+    } finally {
+      setNotificationsLoading(false);
+    }
+  }
 
   // ================================
   // SEARCH
@@ -139,6 +172,8 @@ export default function TopBar() {
     }
 
     setLoading(true);
+
+    loadCampaigns();
 
     const timer = setTimeout(() => {
       const filtered = campaigns.filter((campaign) => {
@@ -504,11 +539,16 @@ export default function TopBar() {
             <button
               type="button"
               aria-label="Notifikasi"
-              onClick={() =>
-                setNotificationOpen(
-                  (current) => !current
-                )
-              }
+              onClick={() => {
+                const nextState =
+                  !notificationOpen;
+
+                setNotificationOpen(nextState);
+
+                if (nextState) {
+                  loadNotifications();
+                }
+              }}
               className="
                 relative
                 flex
