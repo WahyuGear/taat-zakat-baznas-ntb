@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-
 import {
   Bell,
   Search,
@@ -10,8 +9,9 @@ import {
   CheckCircle2,
   Info,
   Heart,
+  AlertTriangle,
+  XCircle,
 } from "lucide-react";
-
 import { useEffect, useRef, useState } from "react";
 
 type Campaign = {
@@ -42,22 +42,13 @@ export default function TopBar() {
   const [results, setResults] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const [notificationOpen, setNotificationOpen] =
-    useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
 
   const searchRef = useRef<HTMLDivElement>(null);
-  const notificationRef =
-    useRef<HTMLDivElement>(null);
+  const notificationRef = useRef<HTMLDivElement>(null);
 
-  // ================================
-  // NOTIFIKASI
-  // ================================
-
-  const [notifications, setNotifications] =
-  useState<NotificationItem[]>([]);
-
-const [notificationsLoading, setNotificationsLoading] =
-  useState(false);
   // ================================
   // AMBIL CAMPAIGN
   // ================================
@@ -89,6 +80,49 @@ const [notificationsLoading, setNotificationsLoading] =
     }
 
     loadCampaigns();
+  }, []);
+
+  // ================================
+  // AMBIL NOTIFIKASI
+  // ================================
+
+  useEffect(() => {
+    async function loadNotifications() {
+      try {
+        setNotificationsLoading(true);
+
+        const response = await fetch("/api/notifications", {
+          credentials: "include",
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          console.error(
+            "Gagal mengambil notifikasi:",
+            response.status
+          );
+          return;
+        }
+
+        const data = await response.json();
+
+        if (
+          data.success &&
+          Array.isArray(data.notifications)
+        ) {
+          setNotifications(data.notifications);
+        }
+      } catch (error) {
+        console.error(
+          "Gagal mengambil notifikasi:",
+          error
+        );
+      } finally {
+        setNotificationsLoading(false);
+      }
+    }
+
+    loadNotifications();
   }, []);
 
   // ================================
@@ -169,7 +203,7 @@ const [notificationsLoading, setNotificationsLoading] =
   }, []);
 
   // ================================
-  // NOTIFICATION
+  // KLIK NOTIFIKASI
   // ================================
 
   async function handleNotificationClick(
@@ -186,7 +220,7 @@ const [notificationsLoading, setNotificationsLoading] =
           id: notification.id,
         }),
       });
-  
+
       setNotifications((current) =>
         current.map((item) =>
           item.id === notification.id
@@ -203,10 +237,10 @@ const [notificationsLoading, setNotificationsLoading] =
         error
       );
     }
-  
+
     setNotificationOpen(false);
   }
-  
+
   const unreadCount = notifications.filter(
     (item) => !item.isRead
   ).length;
@@ -555,7 +589,26 @@ const [notificationsLoading, setNotificationsLoading] =
                 {/* LIST */}
 
                 <div className="max-h-[60vh] overflow-y-auto p-2">
-                  {notifications.length === 0 ? (
+                  {notificationsLoading ? (
+                    <div className="py-10 text-center">
+                      <div
+                        className="
+                          mx-auto
+                          h-6
+                          w-6
+                          animate-spin
+                          rounded-full
+                          border-2
+                          border-slate-200
+                          border-t-green-600
+                        "
+                      />
+
+                      <p className="mt-3 text-[10px] text-slate-400">
+                        Memuat notifikasi...
+                      </p>
+                    </div>
+                  ) : notifications.length === 0 ? (
                     <div className="py-10 text-center">
                       <Bell
                         size={25}
@@ -570,17 +623,32 @@ const [notificationsLoading, setNotificationsLoading] =
                     <div className="space-y-1">
                       {notifications.map(
                         (notification) => {
+                          const type =
+                            notification.type?.toUpperCase();
+
                           const icon =
-                            notification.type ===
-                            "success" ? (
+                            type === "SUCCESS" ? (
                               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-green-100">
                                 <CheckCircle2
                                   size={17}
                                   className="text-green-700"
                                 />
                               </div>
-                            ) : notification.type ===
-                              "donation" ? (
+                            ) : type === "ERROR" ? (
+                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100">
+                                <XCircle
+                                  size={17}
+                                  className="text-red-600"
+                                />
+                              </div>
+                            ) : type === "WARNING" ? (
+                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-yellow-50">
+                                <AlertTriangle
+                                  size={17}
+                                  className="text-yellow-600"
+                                />
+                              </div>
+                            ) : type === "DONATION" ? (
                               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-yellow-50">
                                 <Heart
                                   size={17}
@@ -616,12 +684,17 @@ const [notificationsLoading, setNotificationsLoading] =
                                 </p>
 
                                 <p className="mt-1.5 text-[8px] text-slate-400">
-                                {new Date(notification.createdAt).toLocaleString("id-ID", {
-  day: "2-digit",
-  month: "short",
-  hour: "2-digit",
-  minute: "2-digit",
-})}
+                                  {new Date(
+                                    notification.createdAt
+                                  ).toLocaleString(
+                                    "id-ID",
+                                    {
+                                      day: "2-digit",
+                                      month: "short",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    }
+                                  )}
                                 </p>
                               </div>
                             </>
