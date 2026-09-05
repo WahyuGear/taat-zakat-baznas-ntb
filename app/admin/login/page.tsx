@@ -14,7 +14,6 @@ export default function AdminLoginPage() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
     setError("");
 
     if (!email || !password) {
@@ -60,9 +59,13 @@ export default function AdminLoginPage() {
         <div className="rounded-3xl bg-white p-8 shadow-xl ring-1 ring-gray-100">
           {/* HEADER */}
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-green-700 text-3xl text-white shadow-lg">
-              🕌
-            </div>
+          <div className="mx-auto mb-6 flex items-center justify-center">
+  <img
+    src="/logo-baznas-ntb.png"
+    alt="Logo BAZNAS NTB"
+    className="h-20 w-auto object-contain"
+  />
+</div>
 
             <h1 className="text-3xl font-extrabold text-gray-900">
               Login Admin

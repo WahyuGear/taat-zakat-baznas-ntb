@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Calculator,
   Info,
@@ -70,11 +71,11 @@ const zakatTypes = [
 ];
 
 const campaignSlug: Record<ZakatType, string> = {
-  penghasilan: "zakat-penghasilan",
+  penghasilan: "zakal-penghasilan",
   mal: "zakat-mal",
   pertanian: "zakat-pertanian",
   peternakan: "zakat-peternakan",
-  perdagangan: "zakat-perdagangan",
+  perdagangan: "zakat-perdagangan-niaga",
 };
 
 function parseNumber(value: string) {
@@ -100,8 +101,9 @@ function formatRupiah(value: number) {
 }
 
 export default function ZakatCalculator() {
+  const router = useRouter();
   const [type, setType] = useState<ZakatType>("penghasilan");
-
+    
   /*
    * PENGHASILAN
    */
@@ -153,6 +155,27 @@ export default function ZakatCalculator() {
   const [hasCalculated, setHasCalculated] =
     useState(false);
 
+    const searchParams = new URLSearchParams(
+      typeof window !== "undefined"
+        ? window.location.search
+        : ""
+    );
+    
+    const typeParam = searchParams.get("type");
+    
+    useEffect(() => {
+      if (
+        typeParam === "penghasilan" ||
+        typeParam === "mal" ||
+        typeParam === "pertanian" ||
+        typeParam === "peternakan" ||
+        typeParam === "perdagangan"
+      ) {
+        setType(typeParam);
+        setHasCalculated(false);
+      }
+    }, [typeParam]);
+
   const nisabHarta =
     parseNumber(goldPrice) > 0
       ? parseNumber(goldPrice) * DEFAULT_NISAB_HARTA
@@ -186,6 +209,10 @@ export default function ZakatCalculator() {
   const handleTypeChange = (newType: ZakatType) => {
     setType(newType);
     setHasCalculated(false);
+  
+    router.replace(`/zakat?type=${newType}`, {
+      scroll: false,
+    });
   };
 
   const calculation = useMemo(() => {

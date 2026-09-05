@@ -30,9 +30,9 @@ type NotificationItem = {
   id: number;
   title: string;
   message: string;
-  time: string;
-  type: "info" | "success" | "donation";
-  link?: string;
+  createdAt: string;
+  type: string;
+  link?: string | null;
   isRead: boolean;
 };
 
@@ -54,39 +54,10 @@ export default function TopBar() {
   // ================================
 
   const [notifications, setNotifications] =
-    useState<NotificationItem[]>([
-      {
-        id: 1,
-        title: "Selamat datang di BAZNAS NTB",
-        message:
-          "Terima kasih telah bergabung dan ikut berbagi kebaikan bersama BAZNAS NTB.",
-        time: "Baru saja",
-        type: "info",
-        link: "/campaign",
-        isRead: false,
-      },
-      {
-        id: 2,
-        title: "Sedekah Jumat",
-        message:
-          "Mari berbagi kebaikan melalui program Sedekah Jumat BAZNAS NTB.",
-        time: "Hari ini",
-        type: "donation",
-        link: "/campaign/sedekah-jumat",
-        isRead: false,
-      },
-      {
-        id: 3,
-        title: "Terima kasih atas kebaikan Anda",
-        message:
-          "Setiap kebaikan yang Anda berikan sangat berarti bagi penerima manfaat.",
-        time: "Kemarin",
-        type: "success",
-        link: "/campaign",
-        isRead: true,
-      },
-    ]);
+  useState<NotificationItem[]>([]);
 
+const [notificationsLoading, setNotificationsLoading] =
+  useState(false);
   // ================================
   // AMBIL CAMPAIGN
   // ================================
@@ -201,23 +172,41 @@ export default function TopBar() {
   // NOTIFICATION
   // ================================
 
-  function handleNotificationClick(
+  async function handleNotificationClick(
     notification: NotificationItem
   ) {
-    setNotifications((current) =>
-      current.map((item) =>
-        item.id === notification.id
-          ? {
-              ...item,
-              isRead: true,
-            }
-          : item
-      )
-    );
-
+    try {
+      await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          id: notification.id,
+        }),
+      });
+  
+      setNotifications((current) =>
+        current.map((item) =>
+          item.id === notification.id
+            ? {
+                ...item,
+                isRead: true,
+              }
+            : item
+        )
+      );
+    } catch (error) {
+      console.error(
+        "Gagal menandai notifikasi:",
+        error
+      );
+    }
+  
     setNotificationOpen(false);
   }
-
+  
   const unreadCount = notifications.filter(
     (item) => !item.isRead
   ).length;
@@ -627,7 +616,12 @@ export default function TopBar() {
                                 </p>
 
                                 <p className="mt-1.5 text-[8px] text-slate-400">
-                                  {notification.time}
+                                {new Date(notification.createdAt).toLocaleString("id-ID", {
+  day: "2-digit",
+  month: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+})}
                                 </p>
                               </div>
                             </>

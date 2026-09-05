@@ -210,11 +210,77 @@ export async function POST(req: Request) {
     console.log(
       `DONATION ${orderId} → ${newPaymentStatus}`
     );
-
+    // ================================
+    // BUAT NOTIFIKASI USER
+    // ================================
+    console.log("NOTIFICATION DEBUG:", {
+      donationId: donation.id,
+      userId: donation.userId,
+      newPaymentStatus,
+    });
+    
+    if (donation.userId) {
+      let title = "Status Pembayaran";
+      let message =
+        "Status pembayaran transaksi Anda telah diperbarui.";
+      let type = "INFO";
+    
+      if (newPaymentStatus === "SUCCESS") {
+        title = "Pembayaran Berhasil";
+        message = `Pembayaran sebesar Rp ${donation.amount.toLocaleString(
+          "id-ID"
+        )} telah berhasil diterima oleh BAZNAS NTB.`;
+        type = "SUCCESS";
+      } else if (newPaymentStatus === "FAILED") {
+        title = "Pembayaran Gagal";
+        message = `Pembayaran sebesar Rp ${donation.amount.toLocaleString(
+          "id-ID"
+        )} gagal diproses. Silakan coba kembali.`;
+        type = "ERROR";
+      } else if (newPaymentStatus === "EXPIRED") {
+        title = "Pembayaran Kedaluwarsa";
+        message = `Pembayaran sebesar Rp ${donation.amount.toLocaleString(
+          "id-ID"
+        )} telah kedaluwarsa.`;
+        type = "WARNING";
+      } else if (newPaymentStatus === "PENDING") {
+        title = "Pembayaran Diproses";
+        message = `Pembayaran sebesar Rp ${donation.amount.toLocaleString(
+          "id-ID"
+        )} sedang diproses.`;
+        type = "INFO";
+      }
+    
+      const notificationLink =
+        `/dashboard/pembayaran/${donation.id}`;
+    
+      const existingNotification =
+        await prisma.notification.findFirst({
+          where: {
+            userId: donation.userId,
+            type,
+            link: notificationLink,
+          },
+        });
+    
+      if (!existingNotification) {
+        await prisma.notification.create({
+          data: {
+            userId: donation.userId,
+            title,
+            message,
+            type,
+            link: notificationLink,
+          },
+        });
+      }
+    }
+    
     return NextResponse.json({
       success: true,
       message: "Notification berhasil diproses",
     });
+
   } catch (error) {
     console.error(
       "MIDTRANS NOTIFICATION ERROR:",

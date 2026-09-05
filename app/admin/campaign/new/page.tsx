@@ -206,6 +206,26 @@ export default function NewCampaignPage() {
                 🤲 Infak
               </option>
 
+              <option value="DSKL">
+  🤲 DSKL
+</option>
+
+<option value="Fitrah">
+  🌙 Fitrah
+</option>
+
+<option value="Fidyah">
+  🍚 Fidyah
+</option>
+
+<option value="Kafarat">
+  🛡️ Kafarat
+</option>
+
+<option value="DAM">
+  🕋 DAM
+</option>
+
               <option value="Kemanusiaan">
                 🚑 Kemanusiaan
               </option>

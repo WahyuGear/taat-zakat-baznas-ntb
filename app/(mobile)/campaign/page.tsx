@@ -7,10 +7,39 @@ import {
   Heart,
 } from "lucide-react";
 
-export default async function CampaignPage() {
+export default async function CampaignPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    category?: string;
+    q?: string;
+  }>;
+}) {
+  const params = await searchParams;
+  const category = params.category;
+  const q = params.q?.trim();
+
   const campaigns = await prisma.campaign.findMany({
     where: {
       isActive: true,
+
+      ...(category
+        ? {
+            category: {
+              equals: category,
+              mode: "insensitive",
+            },
+          }
+        : {}),
+
+      ...(q
+        ? {
+            title: {
+              contains: q,
+              mode: "insensitive",
+            },
+          }
+        : {}),
     },
     orderBy: {
       createdAt: "desc",
@@ -47,39 +76,89 @@ export default async function CampaignPage() {
       </div>
 
       {/* SEARCH */}
-      <div className="mb-4 flex h-11 items-center gap-2 rounded-2xl border border-slate-100 bg-white px-3 shadow-sm">
-        <Search
-          size={17}
-          className="shrink-0 text-slate-400"
-        />
+      <form
+  method="GET"
+  className="mb-4 flex h-11 items-center gap-2 rounded-2xl border border-slate-100 bg-white px-3 shadow-sm"
+>
+  {category && (
+    <input
+      type="hidden"
+      name="category"
+      value={category}
+    />
+  )}
 
-        <span className="text-xs text-slate-400">
-          Cari program donasi...
-        </span>
-      </div>
+  <Search
+    size={17}
+    className="shrink-0 text-slate-400"
+  />
+
+  <input
+    type="search"
+    name="q"
+    defaultValue={q}
+    placeholder="Cari program donasi..."
+    className="w-full bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400"
+  />
+</form>
 
       {/* CATEGORY */}
-      <div className="mb-6 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-        <button className="shrink-0 rounded-full bg-green-700 px-4 py-2 text-[10px] font-semibold text-white">
-          Semua
-        </button>
+<div className="mb-6 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+<Link
+  href="/campaign"
+  className={`shrink-0 rounded-full px-4 py-2 text-[10px] font-semibold ${
+    !category
+      ? "bg-green-700 text-white"
+      : "border border-slate-200 bg-white text-slate-500"
+  }`}
+>
+  Semua
+</Link>
 
-        <button className="shrink-0 rounded-full border border-slate-200 bg-white px-4 py-2 text-[10px] font-medium text-slate-500">
-          Zakat
-        </button>
+<Link
+  href="/campaign?category=zakat"
+  className={`shrink-0 rounded-full px-4 py-2 text-[10px] font-semibold ${
+    category?.toLowerCase() === "zakat"
+      ? "bg-green-700 text-white"
+      : "border border-slate-200 bg-white text-slate-500"
+  }`}
+>
+  Zakat
+</Link>
 
-        <button className="shrink-0 rounded-full border border-slate-200 bg-white px-4 py-2 text-[10px] font-medium text-slate-500">
-          Infak
-        </button>
+<Link
+  href="/campaign?category=infak"
+  className={`shrink-0 rounded-full px-4 py-2 text-[10px] font-semibold ${
+    category?.toLowerCase() === "infak"
+      ? "bg-green-700 text-white"
+      : "border border-slate-200 bg-white text-slate-500"
+  }`}
+>
+  Infak
+</Link>
 
-        <button className="shrink-0 rounded-full border border-slate-200 bg-white px-4 py-2 text-[10px] font-medium text-slate-500">
-          DSKL
-        </button>
+<Link
+  href="/campaign?category=dskl"
+  className={`shrink-0 rounded-full px-4 py-2 text-[10px] font-semibold ${
+    category?.toLowerCase() === "dskl"
+      ? "bg-green-700 text-white"
+      : "border border-slate-200 bg-white text-slate-500"
+  }`}
+>
+  DSKL
+</Link>
 
-        <button className="shrink-0 rounded-full border border-slate-200 bg-white px-4 py-2 text-[10px] font-medium text-slate-500">
-          Kurban
-        </button>
-      </div>
+<Link
+  href="/campaign?category=kurban"
+  className={`shrink-0 rounded-full px-4 py-2 text-[10px] font-semibold ${
+    category?.toLowerCase() === "kurban"
+      ? "bg-green-700 text-white"
+      : "border border-slate-200 bg-white text-slate-500"
+  }`}
+>
+  Kurban
+</Link>
+</div>
 
       {/* SECTION HEADER */}
       <div className="mb-4 flex items-center justify-between">

@@ -111,12 +111,8 @@ export default function DonasiForm({ slug }: Props) {
             "MIDTRANS SUCCESS:",
             result
           );
-
-          alert(
-            "Pembayaran berhasil. Terima kasih atas donasi Anda."
-          );
-
-          window.location.href = "/dashboard";
+        
+          window.location.href = `/dashboard/pembayaran/${data.donation.id}`;
         },
 
         onPending: (result) => {

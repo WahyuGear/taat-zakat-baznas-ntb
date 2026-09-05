@@ -13,7 +13,7 @@ import {
 const menus = [
   {
     title: "Zakat",
-    href: "/zakat",
+    href: "/campaign?category=zakat",
     icon: Landmark,
   },
   {
@@ -33,22 +33,22 @@ const menus = [
   },
   {
     title: "Fitrah",
-    href: "/zakat/fitrah",
+    href: "/campaign?category=fitrah",
     icon: MoonStar,
   },
   {
     title: "Fidyah",
-    href: "/zakat/fidyah",
+    href: "/campaign?category=fidyah",
     icon: Soup,
   },
   {
     title: "Kafarat",
-    href: "/zakat/kafarat",
+    href: "/campaign?category=kafarat",
     icon: ShieldCheck,
   },
   {
-    title: "DAM Haji",
-    href: "/zakat/dam-haji",
+    title: "DAM",
+    href: "/campaign?category=dam-haji",
     icon: Plane,
   },
 ];
