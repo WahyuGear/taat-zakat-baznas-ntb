@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
+import { sendPaymentEmail } from "@/lib/email/send-email";
 
 export async function POST(req: Request) {
   try {
@@ -76,6 +77,9 @@ export async function POST(req: Request) {
     const donation = await prisma.donation.findUnique({
       where: {
         orderId: String(orderId),
+      },
+      include: {
+        campaign: true,
       },
     });
 
@@ -276,6 +280,59 @@ export async function POST(req: Request) {
       }
     }
     
+    // ================================
+// KIRIM EMAIL PEMBAYARAN SUCCESS
+// ================================
+
+if (
+  newPaymentStatus === "SUCCESS" &&
+  donation.paymentStatus !== "SUCCESS" &&
+  donation.email
+) {
+  try {
+    const zakatTypes = [
+      "ZAKAT_PENGHASILAN",
+      "ZAKAT_MAL",
+      "ZAKAT_PERTANIAN",
+      "ZAKAT_PETERNAKAN",
+      "ZAKAT_PERDAGANGAN",
+    ];
+
+    const isZakat = zakatTypes.includes(
+      donation.campaign.type
+    );
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+if (!appUrl) {
+  throw new Error("NEXT_PUBLIC_APP_URL belum dikonfigurasi");
+}
+
+    await sendPaymentEmail({
+      to: donation.email,
+      donorName: donation.donorName,
+      amount: donation.amount,
+      program: donation.campaign.title,
+      paymentStatus: "SUCCESS",
+      transactionId: transactionId
+        ? String(transactionId)
+        : donation.transactionId,
+      documentUrl: `${appUrl}/dashboard/pembayaran/${donation.id}`,
+      isZakat,
+    });
+
+    console.log(
+      "EMAIL PEMBAYARAN BERHASIL DIKIRIM:",
+      donation.email
+    );
+  } catch (emailError) {
+    console.error(
+      "GAGAL MENGIRIM EMAIL PEMBAYARAN:",
+      emailError
+    );
+  }
+}
+
     return NextResponse.json({
       success: true,
       message: "Notification berhasil diproses",
