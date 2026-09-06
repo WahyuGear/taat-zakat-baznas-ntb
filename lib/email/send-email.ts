@@ -1,7 +1,5 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 type SendPaymentEmailParams = {
   to: string;
   donorName: string;
@@ -27,6 +25,8 @@ export async function sendPaymentEmail({
     throw new Error("RESEND_API_KEY belum tersedia");
   }
 
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  
   const documentLabel = isZakat
     ? "Lihat Bukti Setor Zakat (BSZ)"
     : "Lihat Bukti Pembayaran";
