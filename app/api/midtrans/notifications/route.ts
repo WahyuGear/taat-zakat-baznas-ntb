@@ -154,6 +154,15 @@ export async function POST(req: Request) {
      * berkali-kali, donation sudah SUCCESS sehingga
      * campaign tidak akan ditambah lagi.
      */
+    console.log("EMAIL CONDITION DEBUG:", {
+      donationId: donation.id,
+      orderId,
+      donationPaymentStatus: donation.paymentStatus,
+      newPaymentStatus,
+      email: donation.email,
+      resendConfigured: !!process.env.RESEND_API_KEY,
+    });
+    
     if (
       newPaymentStatus === "SUCCESS" &&
       donation.paymentStatus !== "SUCCESS"
