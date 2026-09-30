@@ -35,6 +35,11 @@ const campaignTypes = [
     label: "Zakat Perdagangan",
     description: "Zakat harta dan aset perdagangan",
   },
+{
+  value: "ZAKAT_FITRAH",
+  label: "Zakat Fitrah",
+  description: "Zakat fitrah Ramadan",
+},
 ];
 
 export default function EditCampaignPage() {
@@ -50,7 +55,7 @@ export default function EditCampaignPage() {
     description: "",
     image: "",
     target: "",
-    category: "Sedekah",
+    category: "Infak",
     type: "GENERAL",
     isActive: true,
     featured: false,
@@ -246,61 +251,25 @@ export default function EditCampaignPage() {
             </label>
 
             <select
-              value={form.category}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  category: e.target.value,
-                })
-              }
-              className="w-full rounded-2xl border border-slate-200 p-4 outline-none focus:border-green-600"
-            >
-              <option value="Zakat">🕌 Zakat</option>
-              <option value="Sedekah">❤️ Sedekah</option>
-              <option value="Infak">🤲 Infak</option>
-              <option value="DSKL">🤲 DSKL</option>
-<option value="Fitrah">🌙 Fitrah</option>
-<option value="Fidyah">🍚 Fidyah</option>
-<option value="Kafarat">🛡️ Kafarat</option>
-<option value="DAM">🕋 DAM</option>
-              <option value="Kemanusiaan">
-                🚑 Kemanusiaan
-              </option>
-              <option value="Pendidikan">
-                🎓 Pendidikan
-              </option>
-              <option value="Pemberdayaan">
-                🌱 Pemberdayaan
-              </option>
-              <option value="Lansia">👴 Lansia</option>
-              <option value="Kurban">🐄 Kurban</option>
-            </select>
-          </div>
+  value={form.category}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      category: e.target.value,
+    })
+  }
+  className="w-full rounded-2xl border border-slate-200 p-4 outline-none focus:border-green-600"
+>
+  <option value="Zakat">Zakat</option>
+  <option value="Infak">Infak</option>
+  <option value="DSKL">DSKL</option>
+  <option value="Kurban">Kurban</option>
+  <option value="Fitrah">Fitrah</option>
+  <option value="Fidyah">Fidyah</option>
+  <option value="Kafarat">Kafarat</option>
+  <option value="DAM">DAM</option>
+</select>Infak
 
-          <div>
-            <label className="mb-2 block font-semibold text-slate-800">
-              Jenis Campaign
-            </label>
-
-            <select
-              value={form.type}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  type: e.target.value,
-                })
-              }
-              className="w-full rounded-2xl border border-slate-200 p-4 outline-none focus:border-green-600"
-            >
-              {campaignTypes.map((item) => (
-                <option
-                  key={item.value}
-                  value={item.value}
-                >
-                  {item.label}
-                </option>
-              ))}
-            </select>
 
             <p className="mt-2 text-xs leading-5 text-slate-500">
               Jenis campaign digunakan untuk

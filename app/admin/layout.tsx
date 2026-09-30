@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   LayoutDashboard,
@@ -19,12 +19,17 @@ import {
   ChevronRight,
   ShieldCheck,
 } from "lucide-react";
-
 const menuItems = [
   {
     label: "Dashboard",
     href: "/admin",
     icon: LayoutDashboard,
+  },
+  {
+    label: "Kelola Admin",
+    href: "/admin/users",
+    icon: ShieldCheck,
+    superAdminOnly: true,
   },
   {
     label: "Campaign",
@@ -73,6 +78,21 @@ export default function AdminLayout({
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+
+const [adminRole, setAdminRole] = useState("ADMIN");
+
+useEffect(() => {
+  const storedAdmin = localStorage.getItem("admin");
+
+  if (storedAdmin) {
+    try {
+      const admin = JSON.parse(storedAdmin);
+      setAdminRole(admin.role ?? "ADMIN");
+    } catch {
+      setAdminRole("ADMIN");
+    }
+  }
+}, []);
 
   // Login tidak memakai sidebar/topbar admin
   if (pathname === "/admin/login") {
@@ -230,17 +250,16 @@ export default function AdminLayout({
           <div className="mb-3 rounded-2xl bg-gradient-to-br from-green-50 to-yellow-50 p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-700 font-bold text-white">
-                A
-              </div>
+{adminRole === "SUPER_ADMIN" ? "S" : "A"}
+</div>
 
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold text-gray-800">
-                  Admin BAZNAS
-                </p>
-
-                <p className="text-xs text-gray-500">
-                  Administrator
-                </p>
+  {adminRole === "SUPER_ADMIN" ? "Super Admin BAZNAS" : "Admin BAZNAS"}
+</p>
+<p className="text-xs text-gray-500">
+  {adminRole === "SUPER_ADMIN" ? "Super Administrator" : "Administrator"}
+</p>
               </div>
             </div>
           </div>
@@ -297,16 +316,19 @@ export default function AdminLayout({
             <div className="flex items-center gap-3">
               <div className="hidden text-right sm:block">
                 <p className="text-sm font-bold text-gray-800">
-                  Admin BAZNAS NTB
-                </p>
-
-                <p className="text-xs text-gray-400">
-                  Administrator
-                </p>
+  {adminRole === "SUPER_ADMIN"
+    ? "Super Admin BAZNAS NTB"
+    : "Admin BAZNAS NTB"}
+</p>
+<p className="text-xs text-gray-400">
+  {adminRole === "SUPER_ADMIN"
+    ? "Super Administrator"
+    : "Administrator"}
+</p>
               </div>
 
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-green-700 font-bold text-white shadow-lg shadow-green-700/20">
-                A
+                {adminRole === "SUPER_ADMIN" ? "S" : "A"}
               </div>
             </div>
           </div>

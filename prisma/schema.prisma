@@ -18,6 +18,9 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   isActive      Boolean        @default(true)
+  emailVerified           Boolean   @default(false)
+emailVerificationToken  String?   @unique
+emailVerificationExpires DateTime?
   npwz          String?        @unique
   donations     Donation[]
   notifications Notification[]

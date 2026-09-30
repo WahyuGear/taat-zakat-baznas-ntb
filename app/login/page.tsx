@@ -54,11 +54,14 @@ export default function LoginPage() {
         return;
       }
 
-      if (data.role === "ADMIN") {
-        router.replace("/admin");
-      } else {
-        router.replace("/dashboard");
-      }
+      if (
+  data.role === "ADMIN" ||
+  data.role === "SUPER_ADMIN"
+) {
+  router.replace("/admin");
+} else {
+  router.replace("/dashboard");
+}
 
       router.refresh();
 

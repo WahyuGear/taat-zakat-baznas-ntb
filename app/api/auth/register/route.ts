@@ -6,6 +6,10 @@ import { hashPassword } from "@/lib/auth/password";
 
 import { generateNpwz } from "@/lib/npwz";
 
+import { sendVerificationEmail } from "@/lib/email/send-verification-email";
+
+import crypto from "crypto";
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -99,6 +103,16 @@ export async function POST(req: NextRequest) {
     const npwz = await generateNpwz();
 
     // =========================
+    // TOKEN VERIFIKASI EMAIL
+    // =========================
+
+    const emailVerificationToken = crypto.randomBytes(32).toString("hex");
+
+    const emailVerificationExpires = new Date(
+      Date.now() + 30 * 60 * 1000
+    );
+
+    // =========================
     // CREATE USER
     // =========================
 
@@ -109,13 +123,61 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
         phone: phone || null,
         npwz,
+
+        emailVerified: false,
+        emailVerificationToken,
+        emailVerificationExpires,
       },
     });
+
+    // =========================
+    // URL VERIFIKASI
+    // =========================
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+    if (!appUrl) {
+      throw new Error("NEXT_PUBLIC_APP_URL belum dikonfigurasi");
+    }
+
+    const verificationUrl =
+      `${appUrl}/verify-email?token=${emailVerificationToken}`;
+
+    // =========================
+    // KIRIM EMAIL VERIFIKASI
+    // =========================
+
+    try {
+      await sendVerificationEmail({
+        to: user.email,
+        name: user.name,
+        verificationUrl,
+      });
+    } catch (emailError) {
+      console.error(
+        "GAGAL MENGIRIM EMAIL VERIFIKASI:",
+        emailError
+      );
+
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Akun gagal dibuat karena email verifikasi tidak dapat dikirim",
+        },
+        { status: 500 }
+      );
+    }
+
+    // =========================
+    // RESPONSE
+    // =========================
 
     return NextResponse.json(
       {
         success: true,
-        message: "Registrasi berhasil",
+        message:
+          "Registrasi berhasil. Silakan cek email untuk melakukan verifikasi.",
         user: {
           id: user.id,
           name: user.name,

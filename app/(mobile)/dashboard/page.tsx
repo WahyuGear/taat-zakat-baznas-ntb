@@ -61,7 +61,12 @@ export default async function UserDashboardPage() {
   if (!user) {
     redirect("/login");
   }
-
+if (
+  user.role === "ADMIN" ||
+  user.role === "SUPER_ADMIN"
+) {
+  redirect("/admin");
+}
   // =========================
   // AMBIL DATA DONASI USER
   // =========================

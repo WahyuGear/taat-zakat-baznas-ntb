@@ -35,6 +35,11 @@ const campaignTypes = [
     label: "Zakat Perdagangan",
     description: "Zakat harta dan aset perdagangan",
   },
+{
+  value: "ZAKAT_FITRAH",
+  label: "Zakat Fitrah",
+  description: "Zakat fitrah Ramadan",
+},
 ];
 
 export default function NewCampaignPage() {
@@ -195,83 +200,60 @@ export default function NewCampaignPage() {
               }
             >
               <option value="Zakat">
-                🕌 Zakat
-              </option>
-
-              <option value="Sedekah">
-                ❤️ Sedekah
-              </option>
-
-              <option value="Infak">
-                🤲 Infak
-              </option>
-
-              <option value="DSKL">
-  🤲 DSKL
+  Zakat
 </option>
 
-<option value="Fitrah">
-  🌙 Fitrah
+<option value="Kemanusiaan">
+  Kemanusiaan
 </option>
 
-<option value="Fidyah">
-  🍚 Fidyah
+<option value="Pendidikan">
+  Pendidikan
+</option>
+
+<option value="Peduli / Kebencanaan">
+  Peduli / Kebencanaan
+</option>
+
+<option value="Lansia">
+  Lansia
+</option>
+
+<option value="Difabel">
+  Difabel
+</option>
+
+<option value="Pemberdayaan">
+  Pemberdayaan
+</option>
+
+<option value="Dhuafa">
+  Dhuafa
+</option>
+
+<option value="Yatim">
+  Yatim
+</option>
+
+<option value="Lainnya">
+  Lainnya
+</option>
+
+<option value="Dam Haji/Umroh">
+  Dam Haji/Umroh
+</option>
+
+<option value="Kurban">
+  Kurban
 </option>
 
 <option value="Kafarat">
-  🛡️ Kafarat
+  Kafarat
 </option>
 
-<option value="DAM">
-  🕋 DAM
+<option value="Fidyah">
+  Fidyah
 </option>
-
-              <option value="Kemanusiaan">
-                🚑 Kemanusiaan
-              </option>
-
-              <option value="Pendidikan">
-                🎓 Pendidikan
-              </option>
-
-              <option value="Pemberdayaan">
-                🌱 Pemberdayaan
-              </option>
-
-              <option value="Lansia">
-                👴 Lansia
-              </option>
-
-              <option value="Kurban">
-                🐄 Kurban
-              </option>
-            </select>
-          </div>
-
-          {/* TYPE */}
-          <div>
-            <label className="mb-2 block font-semibold">
-              Jenis Campaign
-            </label>
-
-            <select
-              className="w-full rounded-2xl border p-4 focus:border-green-600 focus:outline-none"
-              value={form.type}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  type: e.target.value,
-                })
-              }
-            >
-              {campaignTypes.map((item) => (
-                <option
-                  key={item.value}
-                  value={item.value}
-                >
-                  {item.label}
-                </option>
-              ))}
             </select>
 
             <p className="mt-2 text-xs leading-5 text-slate-500">

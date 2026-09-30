@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 type SendPaymentEmailParams = {
   to: string;
@@ -11,6 +11,16 @@ type SendPaymentEmailParams = {
   isZakat: boolean;
 };
 
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT || 587),
+  secure: Number(process.env.SMTP_PORT) === 465,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD,
+  },
+});
+
 export async function sendPaymentEmail({
   to,
   donorName,
@@ -21,12 +31,10 @@ export async function sendPaymentEmail({
   documentUrl,
   isZakat,
 }: SendPaymentEmailParams) {
-  if (!process.env.RESEND_API_KEY) {
-    throw new Error("RESEND_API_KEY belum tersedia");
+  if (!process.env.SMTP_FROM) {
+    throw new Error("SMTP_FROM belum tersedia");
   }
 
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  
   const documentLabel = isZakat
     ? "Lihat Bukti Setor Zakat (BSZ)"
     : "Lihat Bukti Pembayaran";
@@ -52,9 +60,9 @@ export async function sendPaymentEmail({
     `
     : "";
 
-  const { data, error } = await resend.emails.send({
-    from: "BAZNAS NTB <onboarding@resend.dev>",
-    to: [to],
+  const result = await transporter.sendMail({
+    from: `"BAZNAS NTB" <${process.env.SMTP_FROM}>`,
+    to,
     subject: `Pembayaran Berhasil - ${program}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#222;">
@@ -123,9 +131,5 @@ export async function sendPaymentEmail({
     `,
   });
 
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data;
+  return result;
 }

@@ -42,9 +42,19 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // Login berhasil
-      router.push("/admin");
-      router.refresh();
+     // Login berhasil
+localStorage.setItem(
+  "admin",
+  JSON.stringify({
+    id: data.user?.id,
+    name: data.user?.name,
+    email: data.user?.email,
+    role: data.role,
+  })
+);
+
+router.push("/admin");
+router.refresh();
     } catch (error) {
       console.error(error);
       setError("Terjadi kesalahan koneksi ke server.");

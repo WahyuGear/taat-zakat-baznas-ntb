@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth/jwt";
 
 export async function GET(
   request: NextRequest,
@@ -138,15 +140,111 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // =========================
+    // CEK LOGIN
+    // =========================
+
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Anda harus login",
+        },
+        { status: 401 }
+      );
+    }
+
+    const jwtUser = verifyToken(token);
+
+    if (!jwtUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token tidak valid",
+        },
+        { status: 401 }
+      );
+    }
+
+    // =========================
+    // DELETE HANYA SUPER_ADMIN
+    // =========================
+
+    if (jwtUser.role !== "SUPER_ADMIN") {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Hanya SUPER_ADMIN yang dapat menghapus campaign",
+        },
+        { status: 403 }
+      );
+    }
+
+    // =========================
+    // CEK ID CAMPAIGN
+    // =========================
+
     const { id } = await params;
     const campaignId = Number(id);
 
     if (!Number.isInteger(campaignId)) {
       return NextResponse.json(
-        { message: "ID campaign tidak valid" },
+        {
+          success: false,
+          message: "ID campaign tidak valid",
+        },
         { status: 400 }
       );
     }
+
+    // =========================
+    // CEK CAMPAIGN
+    // =========================
+
+    const campaign = await prisma.campaign.findUnique({
+      where: {
+        id: campaignId,
+      },
+    });
+
+    if (!campaign) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Campaign tidak ditemukan",
+        },
+        { status: 404 }
+      );
+    }
+
+    // =========================
+    // CEK TRANSAKSI / DONASI
+    // =========================
+
+    const donationCount = await prisma.donation.count({
+      where: {
+        campaignId,
+      },
+    });
+
+    if (donationCount > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Campaign tidak dapat dihapus karena sudah memiliki transaksi donasi. Nonaktifkan campaign sebagai gantinya.",
+        },
+        { status: 409 }
+      );
+    }
+
+    // =========================
+    // DELETE
+    // =========================
 
     await prisma.campaign.delete({
       where: {

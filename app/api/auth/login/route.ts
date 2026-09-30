@@ -55,6 +55,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+if (!user.emailVerified) {
+  return NextResponse.json(
+    {
+      success: false,
+      message:
+        "Email belum diverifikasi. Silakan cek email Anda untuk melakukan verifikasi.",
+    },
+    { status: 403 }
+  );
+}
     // =========================
     // JWT
     // =========================
