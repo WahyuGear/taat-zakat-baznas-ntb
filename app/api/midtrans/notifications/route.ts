@@ -238,12 +238,12 @@ export async function POST(req: Request) {
       let type = "INFO";
     
       if (newPaymentStatus === "SUCCESS") {
-        title = "Pembayaran Berhasil";
-        message = `Pembayaran sebesar Rp ${donation.amount.toLocaleString(
-          "id-ID"
-        )} telah berhasil diterima oleh BAZNAS NTB.`;
-        type = "SUCCESS";
-      } else if (newPaymentStatus === "FAILED") {
+  title = "Pembayaran Berhasil";
+  message = `Pembayaran sebesar Rp ${donation.amount.toLocaleString(
+    "id-ID"
+  )} telah berhasil diterima oleh BAZNAS NTB. Bukti pembayaran Anda sudah tersedia untuk dilihat atau dicetak.`;
+  type = "SUCCESS";
+} else if (newPaymentStatus === "FAILED") {
         title = "Pembayaran Gagal";
         message = `Pembayaran sebesar Rp ${donation.amount.toLocaleString(
           "id-ID"
