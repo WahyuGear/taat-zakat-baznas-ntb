@@ -11,11 +11,13 @@ import {
 
 export default async function CampaignDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ amount?: string }>;
 }) {
   const { slug } = await params;
-
+  const { amount } = await searchParams;
   const campaign = await prisma.campaign.findUnique({
     where: {
       slug,
@@ -540,7 +542,11 @@ export default async function CampaignDetailPage({
       {/* BOTTOM DONATION BUTTON */}
       <div className="fixed bottom-[140px] left-1/2 z-40 w-full max-w-[430px] -translate-x-1/2 px-4">
         <Link
-          href={`/campaign/${campaign.slug}/donasi`}
+  href={
+    amount
+      ? `/campaign/${campaign.slug}/donasi?amount=${encodeURIComponent(amount)}`
+      : `/campaign/${campaign.slug}/donasi`
+  }
           className="flex h-12 w-full items-center justify-center rounded-2xl bg-green-700 text-sm font-extrabold text-white shadow-xl shadow-green-700/25 transition active:scale-[0.98]"
         >
           <Heart

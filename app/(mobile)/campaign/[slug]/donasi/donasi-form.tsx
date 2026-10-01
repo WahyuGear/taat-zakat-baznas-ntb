@@ -5,6 +5,7 @@ import { Heart, ShieldCheck } from "lucide-react";
 
 interface Props {
   slug: string;
+  initialAmount?: string;
 }
 
 declare global {
@@ -23,12 +24,15 @@ declare global {
   }
 }
 
-export default function DonasiForm({ slug }: Props) {
+export default function DonasiForm({
+  slug,
+  initialAmount,
+}: Props) {
   const [form, setForm] = useState({
     donorName: "",
     email: "",
     phone: "",
-    amount: "",
+    amount: initialAmount || "",
     message: "",
   });
 

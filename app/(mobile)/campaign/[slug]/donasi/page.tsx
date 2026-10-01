@@ -6,11 +6,13 @@ import DonasiForm from "./donasi-form";
 
 export default async function DonasiPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ amount?: string }>;
 }) {
   const { slug } = await params;
-
+  const { amount } = await searchParams;
   const campaign =
     await prisma.campaign.findUnique({
       where: {
@@ -140,7 +142,10 @@ export default async function DonasiPage({
         {/* FORM DONASI */}
 
         <div className="mt-3">
-          <DonasiForm slug={campaign.slug} />
+          <DonasiForm
+  slug={campaign.slug}
+  initialAmount={amount}
+/>
         </div>
 
       </div>
