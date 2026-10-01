@@ -83,7 +83,6 @@ const [notice, setNotice] = useState<{
   type: "success",
 });
 
-      router.push("/login");
     } catch (error) {
       console.error(error);
       alert("Terjadi kesalahan server");
