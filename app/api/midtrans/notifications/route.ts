@@ -160,7 +160,6 @@ export async function POST(req: Request) {
       donationPaymentStatus: donation.paymentStatus,
       newPaymentStatus,
       email: donation.email,
-      resendConfigured: !!process.env.RESEND_API_KEY,
     });
     
     if (
