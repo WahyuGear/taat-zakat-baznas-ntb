@@ -18,6 +18,12 @@ export default function RegisterPage() {
 
   const [loading, setLoading] = useState(false);
 
+const [notice, setNotice] = useState<{
+  title: string;
+  message: string;
+  type: "success" | "error";
+} | null>(null);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -69,7 +75,13 @@ export default function RegisterPage() {
         return;
       }
 
-      alert("Registrasi berhasil. Silakan login.");
+     setNotice({
+  title: "Registrasi Berhasil",
+  message:
+    data.message ||
+    "Silakan cek email untuk melakukan verifikasi akun sebelum login.",
+  type: "success",
+});
 
       router.push("/login");
     } catch (error) {
@@ -187,6 +199,57 @@ export default function RegisterPage() {
           </p>
         </div>
       </div>
+
+      {/* NOTIFICATION MODAL */}
+      {notice && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 px-5 backdrop-blur-sm">
+          <div className="w-full max-w-sm overflow-hidden rounded-3xl bg-white shadow-2xl">
+            <div className="px-6 pb-6 pt-7 text-center">
+              <div
+                className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full text-3xl ${
+                  notice.type === "success"
+                    ? "bg-green-100"
+                    : "bg-red-100"
+                }`}
+              >
+                {notice.type === "success" ? "✓" : "!"}
+              </div>
+
+              <h2 className="mt-5 text-xl font-extrabold text-slate-900">
+                {notice.title}
+              </h2>
+
+              <p className="mt-3 text-sm leading-6 text-slate-500">
+                {notice.message}
+              </p>
+
+              {notice.type === "success" && (
+                <div className="mt-4 rounded-2xl bg-green-50 px-4 py-3 text-left text-xs leading-5 text-green-800">
+                  💚 Cek <b>Inbox</b> atau folder <b>Spam</b> email kamu.
+                  <br />
+                  Link verifikasi berlaku selama <b>30 menit</b>.
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-slate-100 p-4">
+              <button
+                type="button"
+                onClick={() => {
+                  if (notice.type === "success") {
+                    router.push("/login");
+                  } else {
+                    setNotice(null);
+                  }
+                }}
+                className="w-full rounded-2xl bg-green-700 py-3.5 text-sm font-extrabold text-white transition hover:bg-green-800"
+              >
+                {notice.type === "success" ? "Lanjut Login" : "Tutup"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* BOTTOM NAV */}
       <BottomNav />
