@@ -31,6 +31,7 @@ export default async function CampaignDetailPage({
       target: true,
       collected: true,
       category: true,
+      type: true,
       isActive: true,
     },
   });
@@ -53,7 +54,15 @@ export default async function CampaignDetailPage({
       </main>
     );
   }
+  const zakatTypeByCampaignType: Record<string, string> = {
+    ZAKAT_PENGHASILAN: "penghasilan",
+    ZAKAT_MAL: "mal",
+    ZAKAT_PERTANIAN: "pertanian",
+    ZAKAT_PETERNAKAN: "peternakan",
+    ZAKAT_PERDAGANGAN: "perdagangan",
+  };
 
+  const zakatType = zakatTypeByCampaignType[campaign.type];
   const [donations, donationStats, reports] =
     await Promise.all([
       prisma.donation.findMany({
@@ -545,7 +554,9 @@ export default async function CampaignDetailPage({
   href={
     amount
       ? `/campaign/${campaign.slug}/donasi?amount=${encodeURIComponent(amount)}`
-      : `/campaign/${campaign.slug}/donasi`
+      : zakatType
+        ? `/zakat?type=${zakatType}`
+        : `/campaign/${campaign.slug}/donasi`
   }
           className="flex h-12 w-full items-center justify-center rounded-2xl bg-green-700 text-sm font-extrabold text-white shadow-xl shadow-green-700/25 transition active:scale-[0.98]"
         >
