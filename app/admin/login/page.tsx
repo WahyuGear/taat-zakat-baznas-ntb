@@ -42,19 +42,18 @@ export default function AdminLoginPage() {
         return;
       }
 
-     // Login berhasil
-localStorage.setItem(
-  "admin",
-  JSON.stringify({
-    id: data.user?.id,
-    name: data.user?.name,
-    email: data.user?.email,
-    role: data.role,
-  })
-);
+      localStorage.setItem(
+        "admin",
+        JSON.stringify({
+          id: data.user?.id,
+          name: data.user?.name,
+          email: data.user?.email,
+          role: data.role,
+        })
+      );
 
-router.push("/admin");
-router.refresh();
+      router.push("/admin");
+      router.refresh();
     } catch (error) {
       console.error(error);
       setError("Terjadi kesalahan koneksi ke server.");
@@ -64,117 +63,123 @@ router.refresh();
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 via-white to-yellow-50 px-4">
-      <div className="w-full max-w-md">
-        <div className="rounded-3xl bg-white p-8 shadow-xl ring-1 ring-gray-100">
-          {/* HEADER */}
-          <div className="mb-8 text-center">
-          <div className="mx-auto mb-6 flex items-center justify-center">
-  <img
-    src="/logo-baznas-ntb.png"
-    alt="Logo BAZNAS NTB"
-    className="h-20 w-auto object-contain"
-  />
-</div>
+    <main className="min-h-screen bg-[#f6f8f7] px-4 py-10">
+      <div className="mx-auto max-w-md">
+        <div className="rounded-3xl bg-white p-7 shadow-sm">
+          <div className="text-center">
+            <div className="mx-auto flex h-24 w-56 items-center justify-center">
+              <img
+                src="/logo-baznas-ntb.png"
+                alt="Logo BAZNAS NTB"
+                className="h-24 w-56 object-contain"
+              />
+            </div>
 
-            <h1 className="text-3xl font-extrabold text-gray-900">
-              Login Admin
+            <h1 className="mt-5 text-2xl font-extrabold">
+              Selamat Datang
             </h1>
 
-            <p className="mt-2 text-sm text-gray-500">
-              Dashboard BAZNAS NTB
+            <p className="mt-2 text-sm text-slate-500">
+              Masuk ke akun BAZNAS NTB
             </p>
           </div>
 
-          {/* ERROR */}
           {error && (
-            <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
               {error}
             </div>
           )}
 
-          {/* FORM */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* EMAIL */}
-            <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block text-sm font-semibold text-gray-700"
-              >
-                Email
-              </label>
+          <form onSubmit={handleSubmit} className="mt-7 space-y-4">
+            <input
+              id="email"
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none focus:border-green-500 focus:bg-white"
+            />
 
+            <div className="relative">
               <input
-                id="email"
-                type="email"
-                placeholder="admin@baznasntb.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none transition focus:border-green-600 focus:bg-white focus:ring-2 focus:ring-green-100"
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 pr-12 text-sm outline-none focus:border-green-500 focus:bg-white"
               />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={
+                  showPassword
+                    ? "Sembunyikan password"
+                    : "Tampilkan password"
+                }
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-700"
+              >
+                {showPassword ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="h-5 w-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 3l18 18M10.58 10.58a2 2 0 102.83 2.83M9.88 4.24A10.94 10.94 0 0112 4c5 0 8.27 4.11 9.5 6a11.6 11.6 0 01-4.03 4.42M6.61 6.61C4.7 7.89 3.39 9.62 2.5 11c1.23 1.89 4.5 6 9.5 6a10.94 10.94 0 002.12-.21"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="h-5 w-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"
+                    />
+                    <circle cx="12" cy="12" r="2.5" />
+                  </svg>
+                )}
+              </button>
             </div>
 
-            {/* PASSWORD */}
-            <div>
-              <div className="mb-2 flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-semibold text-gray-700"
-                >
-                  Password
-                </label>
-
-                <a
-                  href="/admin/forgot-password"
-                  className="text-sm font-semibold text-green-700 hover:text-green-800"
-                >
-                  Lupa password?
-                </a>
-              </div>
-
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Masukkan password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="current-password"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-12 outline-none transition focus:border-green-600 focus:bg-white focus:ring-2 focus:ring-green-100"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-                  aria-label={
-                    showPassword
-                      ? "Sembunyikan password"
-                      : "Lihat password"
-                  }
-                >
-                  {showPassword ? "🙈" : "👁️"}
-                </button>
-              </div>
+            <div className="flex justify-end">
+              <a
+                href="/admin/forgot-password"
+                className="text-sm font-semibold text-green-700 hover:text-green-800"
+              >
+                Lupa password?
+              </a>
             </div>
 
-            {/* LOGIN BUTTON */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-green-700 py-3.5 font-bold text-white shadow-lg shadow-green-700/20 transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-2xl bg-green-700 py-3.5 text-sm font-extrabold text-white hover:bg-green-800 disabled:opacity-60"
             >
-              {loading ? "Memproses..." : "Masuk Dashboard"}
+              {loading ? "Memproses..." : "Masuk"}
             </button>
           </form>
 
-          {/* INFO */}
-          <div className="mt-6 rounded-xl bg-gray-50 p-4 text-center text-xs text-gray-500">
+          <p className="mt-6 text-center text-sm text-slate-500">
             Login khusus administrator BAZNAS NTB
-          </div>
+          </p>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -11,6 +11,9 @@ export default function LoginPage() {
   const [password, setPassword] =
     useState("");
 
+    const [showPassword, setShowPassword] =
+  useState(false);
+
   const [loading, setLoading] =
     useState(false);
 
@@ -85,9 +88,13 @@ export default function LoginPage() {
 
           <div className="text-center">
 
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100 text-2xl">
-              💚
-            </div>
+          <div className="mx-auto flex h-24 w-56 items-center justify-center">
+  <img
+    src="/logo-baznas-ntb.png"
+    alt="Logo BAZNAS NTB"
+    className="h-24 w-56 object-contain"
+  />
+</div>
 
             <h1 className="mt-5 text-2xl font-extrabold">
               Selamat Datang
@@ -114,17 +121,58 @@ export default function LoginPage() {
               className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none focus:border-green-500 focus:bg-white"
             />
 
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) =>
-                setPassword(
-                  e.target.value
-                )
-              }
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none focus:border-green-500 focus:bg-white"
-            />
+<div className="relative">
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="Password"
+    value={password}
+    onChange={(e) =>
+      setPassword(e.target.value)
+    }
+    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 pr-12 text-sm outline-none focus:border-green-500 focus:bg-white"
+  />
+
+  <button
+    type="button"
+    onClick={() =>
+      setShowPassword((prev) => !prev)
+    }
+    aria-label={
+      showPassword
+        ? "Sembunyikan password"
+        : "Tampilkan password"
+    }
+    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-700"
+  >
+    {showPassword ? (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        className="h-5 w-5"
+      >
+        <path d="M3 3l18 18" />
+        <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+        <path d="M9.9 4.2A10.7 10.7 0 0 1 12 4c5 0 8.5 4 9.5 6a11.5 11.5 0 0 1-3.1 3.8" />
+        <path d="M6.1 6.1C4.2 7.4 2.9 9.1 2.5 10c1 2 4.5 6 9.5 6 1 0 2-.2 2.8-.5" />
+      </svg>
+    ) : (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        className="h-5 w-5"
+      >
+        <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+        <circle cx="12" cy="12" r="2.5" />
+      </svg>
+    )}
+  </button>
+</div>
 
             <button
               type="submit"

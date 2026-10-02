@@ -199,6 +199,20 @@ export default function TopBar() {
 
     return () => clearTimeout(timer);
   }, [query, campaigns]);
+  
+  // ================================
+  // REFRESH NOTIFIKASI OTOMATIS
+  // Setiap 10 detik
+  // ================================
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNotificationsLoaded(false);
+      loadNotifications();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // ================================
   // KLIK DI LUAR
